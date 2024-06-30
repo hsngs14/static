@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Inspired Webpage - Light Theme</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Binance Inspired App</h1>
+        </header>
+        <main>
+            <div id="winner" class="winner"></div>
+            <div class="card">
+                <h2>Welcome</h2>
+                <p>Experience the power of digital assets with our sleek interface.</p>
+                <button class="btn-primary">Get Started</button>
+                <button class="btn-secondary">Learn More</button>
+            </div>
+            <div class="input-group">
+                <label for="amount">Enter Amount</label>
+                <input type="number" id="amount" name="amount" placeholder="0.00">
+            </div>
+            <div class="user-list">
+                <h2>User Rankings</h2>
+                <ul id="userList"></ul>
+            </div>
+        </main>
+        <footer class="footer">
+            <p>&copy; 2024 Binance Inspired. All rights reserved.</p>
+        </footer>
+    </div>
+    <nav class="navbar">
+        <div class="nav-item" onclick="navigateTo('index.html')">
+            <img src="https://img.icons8.com/material-outlined/24/000000/home.png" alt="Home">
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('newpage.html')">
+            <img src="https://img.icons8.com/material-outlined/24/000000/wallet.png" alt="Wallet">
+            <span>Explore</span>
+        </div>
+        <div class="nav-item">
+            <img src="https://img.icons8.com/material-outlined/24/000000/line-chart.png" alt="Market">
+            <span>Market</span>
+        </div>
+        <div class="nav-item">
+            <img src="https://img.icons8.com/material-outlined/24/000000/settings.png" alt="Settings">
+            <span>Settings</span>
+        </div>
+    </nav>
+</body>
+</html>
