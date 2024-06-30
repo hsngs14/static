@@ -1,0 +1,118 @@
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(to bottom right, #fff5e6, #e0eafc);
+    color: #333333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    padding-top: 50px;
+    margin-bottom: 80px;
+}
+
+.header h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #333333;
+}
+
+.message-list {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.message-list h2 {
+    margin: 0 0 20px;
+    font-size: 1.5em;
+    color: #F0B90B;
+}
+
+.message-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.message-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.message-list li:hover {
+    background-color: #e6e6e6;
+    transform: translateY(-3px);
+}
+
+.message-list .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.message-list .user-name {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.message-list .unread-messages {
+    font-size: 0.9em;
+    color: #ff6347;
+}
+
+.message-list .message-preview {
+    font-size: 0.9em;
+    color: #666666;
+    margin-top: 5px;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 0.8em;
+    color: #666666;
+}
+
+.navbar {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-item {
+    text-align: center;
+    color: #000000;
+    cursor: pointer;
+}
+
+.nav-item img {
+    width: 24px;
+    height: 24px;
+}
+
+.nav-item span {
+    display: block;
+    font-size: 0.75em;
+    margin-top: 5px;
+}
