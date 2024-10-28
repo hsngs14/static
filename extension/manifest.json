@@ -122,8 +122,7 @@
       "https://5f2749aa43d4.695b66d7.eu-central-1.token.awswaf.com/*",
       "https://qatar.blsspainglobal.com/*",
       "https://russia.blsspainglobal.com/*"
-    ],
-      "js": ["redirectFrompassChang.js"]
+    ]
     }
   ],
   "browser_action": {
