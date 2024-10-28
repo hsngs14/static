@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style type="text/css">
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14pt;
+      min-width: 250px;
+      overflow-x: hidden;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 10px;
+    }
+
+    .button-container {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 15px;
+      margin-bottom: 15px;
+    }
+
+    .button-64 {
+      flex: 1;
+      padding: 15px;
+      background-color: #3498db; /* Blue color */
+      color: #fff;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.3s;
+      overflow: hidden;
+    }
+
+    .button-64:hover {
+      background-color: #2980b9; /* Darker blue color on hover */
+    }
+
+    .icon-container {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+  </style>
+  <title>Extension Popup</title>
+</head>
+<body>
+  <div class="button-container">
+    <span class="icon-container">⚙️</span>
+    <button class="button-64" id="button1">Extension Setting</button>
+  </div>
+  <div class="button-container">
+    <span class="icon-container">👥</span>
+    <button class="button-64" id="button2">Manage Client</button>
+  </div>
+  <div class="button-container">
+    <span class="icon-container">💳</span>
+    <button class="button-64" id="button3">Manage Payment</button>
+  </div>
+  <div class="button-container">
+    <span class="icon-container">📸</span>
+    <button class="button-64" id="button4">Copy Selfie</button>
+  </div>
+  <div class="button-container">
+    <span class="icon-container">📸</span>
+    <button class="button-64" id="button5">Paste Selfie</button>
+  </div>
+  <div class="button-container">
+    <textarea id="headerValue" rows="4" cols="50"></textarea>
+    <button class="button-64" id="saveButton">Save</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
