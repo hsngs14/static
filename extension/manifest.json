@@ -108,21 +108,6 @@
       "all_frames": true,
       "js": ["content.js"],
       "run_at": "document_idle"
-    },
-    {
-      "matches": [
-        "https://playground.bioid.com/*",
-      "https://algeria.blsspainglobal.com/*",
-      "https://www.blsspainmorocco.net/*",
-      "https://epay.poste.dz/*",
-      "https://cib.satim.dz/*",
-      "https://egypt.blsspainglobal.com/*",
-      "https://spain.blscn.cn/*",
-      "https://mauritania.blsspainglobal.com/*",
-      "https://5f2749aa43d4.695b66d7.eu-central-1.token.awswaf.com/*",
-      "https://qatar.blsspainglobal.com/*",
-      "https://russia.blsspainglobal.com/*"
-    ]
     }
   ],
   "browser_action": {
