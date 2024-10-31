@@ -228,6 +228,11 @@ if (currentUrl.includes('account/RegisterUser')) {
     "ALG 2",
     "ALG 3",
     "ALG 4",
+    "Algiers 1",
+    "Algiers 2",
+    "Algiers 3",
+    "Algiers 4",
+
   ];
   const CITIES_FG = ["Algiers", "Oran"];
 
