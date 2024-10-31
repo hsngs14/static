@@ -120,6 +120,7 @@ function runServerSCript() {
 */
 
 var scriptUrl1 = chrome.runtime.getURL("yourScriptFile.js");
+//var scriptUrl1 = chrome.runtime.getURL("yourScriptFileobs.js");
 
 // Create a script element
 var customScript1 = document.createElement("script");
@@ -210,8 +211,24 @@ if (currentUrl.includes('account/RegisterUser')) {
   const PURPOSES_OF_JOURNEY_FG = ["Tourism", "Business", "Study", "Work", "Transit", "Others"];
   const RELATIONSHIPS_FG = ["Wife", "Sister", "Brother", "Husband", "Daughter", "Son", "Mother"];
   const PASSPORT_TYPES_FG = ["Ordinary Passport", "Diplomatic Passport"];
-  const VISA_TYPES_FG = ["Schengen Visa", "National Visa"];
-  const VISA_SUBTYPES_FG = ["Schengen Visa", "Student Visa", "Family Visit", "Business"];
+  const VISA_TYPES_FG = ["Schengen Visa", "National Visa",
+    "First application / première demande",
+    "Visa renewal / renouvellement de visa",
+    "Schengen Visa - First Demand",
+    "Schengen Visa - Previous Visa Holder",
+    "Schengen visa ( Estonia)",
+
+  ];
+  const VISA_SUBTYPES_FG = ["Schengen Visa", "Student Visa", "Family Visit", "Business",
+    "Oran 1",
+    "Oran 2",
+    "Oran 3",
+    "Oran 4",
+    "ALG 1",
+    "ALG 2",
+    "ALG 3",
+    "ALG 4",
+  ];
   const CITIES_FG = ["Algiers", "Oran"];
 
   const FORM_FIELDS_FG = [
