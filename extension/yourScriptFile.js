@@ -22,6 +22,10 @@ baseUrlServer = "https://devserver.ddnsking.com";
 //const apiUrl = `${baseUrlServer}/api/Bls/GetFirstEmailOtp`;
 // Get the current page title
 var currentUrl = window.location.href;
+if (currentUrl.includes("Appointment/ApplicantSelection")) {
+  localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
+
+}
 
 if (
   document.body.textContent.includes(
@@ -30,6 +34,13 @@ if (
 ) {
   window.location.reload();
 }
+
+let changeProxyWhenTooManyRequest = JSON.parse(localStorage.getItem('changeProxyWhenTooManyRequest')) || true;
+
+// Store the updated value back in localStorage
+localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(changeProxyWhenTooManyRequest));
+
+console.log(changeProxyWhenTooManyRequest);
 
 var pageTitle = document.title;
 var capcountry = "";
@@ -79,7 +90,28 @@ if (currentUrl.includes("spain.blscn.cn")) {
   targetCounry = "/Global";
 }
 
+if(isBlsWebSite){
+  saveSettings1();
+  function saveSettings1() {
+    const settings = {
+      byPass: true,
+      serialKey: "12345",
+      autoRefresh: true,
+      refreshCooldown: parseInt(
+        20
+      ),
+      categorySpeed: parseInt(0),
+      autoCaptcha: true,
+      autoLogin: true,
+      autoFill: true,
+      autoSubmit: true,
+      captchaID: true,
+      captchaAPI: true,
+    };
 
+    localStorage.setItem("autoFormData", JSON.stringify(settings));
+  }
+}
 var reqQueue = [];
 // Optionally, you can override the send method to capture the request body
 var originalXHRSend = window.XMLHttpRequest.prototype.send;
@@ -291,6 +323,18 @@ if (
   setTimeout(() => {
     window.location.reload();
   }, timeOut);
+}
+if (changeProxyWhenTooManyRequest &&
+  (
+  pageTitle.includes("403") ||
+  pageTitle.includes("429") ||
+  pageTitle.includes("Too Many Requests")
+)
+) {
+  sendProxyChangeRequest();
+ 
+} else {
+  console.log("No proxy change needed. Page title:", pageTitle);
 }
 
 // Check if any element on the page contains "Backend service does not exist"
@@ -1190,6 +1234,8 @@ async function getLabelFor(labelString) {
   }
 }
 async function selectCategories() {
+  localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
+
   await randomDelay();
   if (localStorage.getItem("individuals") > 1) {
     Array.from(document.getElementsByTagName('label'))
@@ -1478,6 +1524,7 @@ if (visaTypeSelectionElement) {
   console.log('The visa type selection element does not exist.');
 }
 if (currentUrl.includes("Appointment/ApplicantSelection")) {
+localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
 
   const otpButton_xyz1 = document.createElement('button');
   otpButton_xyz1.innerText = 'Get Otp'; // Button text
@@ -1522,7 +1569,12 @@ if (currentUrl.includes("Appointment/ApplicantSelection")) {
       $("#uploadfile-1-preview").attr("src", targetCounry + "/query/getfile?fileid=" + photoID);
       $("#ApplicantPhotoId").val(photoID);
   }
-  document.querySelector('.rdo-applicant[id^="rdo-"]').click();
+  if(localStorage.getItem("individuals")>1){
+    document.querySelectorAll('[id^="app-"]').forEach(element => element.click());
+  }else{
+    document.querySelector('.rdo-applicant[id^="rdo-"]').click();
+  }
+  
 
   setTimeout(() => {
     otpButton_xyz1.click();
@@ -1713,6 +1765,8 @@ async function handlePasswordChange() {
 
 // Check if 'home/index' exists in the pathname
 if (currentUrl.toLowerCase().includes("home/index") && isBlsWebSite) {
+  localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
+
   console.log("The page contains 'home/index'");
   //document.querySelector('#div-main > div:nth-child(2) > a').click();
   Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
@@ -2135,6 +2189,8 @@ if (
   currentUrl.includes('AppointmentCaptcha?data')
   || currentUrl.includes('appointment/appointmentcaptcha')
 ) {
+  localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
+
 
   setTimeout(() => {
     handleNewCaptchaLoginAsync();
@@ -3194,7 +3250,7 @@ function get_captcha(image_data, callback) {
 }
 
 if (currentUrl.includes('GenerateCaptcha?data')) {
-  /*
+  
   window.alert = function () {
     return true;
   };
@@ -3209,7 +3265,7 @@ if (currentUrl.includes('GenerateCaptcha?data')) {
     });
   });
 
-  */
+  
 }
 
 
@@ -3458,6 +3514,11 @@ async function fillNewUserDataFromLocalStorage() {
   document.getElementById('Email').value = profileData.app_email;
   console.log(profileData.app_email_app_password);
   document.getElementById('LastName').value = profileData.app_lastName;
+
+  localStorage.setItem('selectionVisaType', profileData.app_visaType);
+  localStorage.setItem('selectionVisaSubType', profileData.app_visaSubType);
+
+
 
 
 
@@ -3854,6 +3915,8 @@ async function handleManageApplicantDetailAsync() {
       datePicker3.value(new Date(profileData.app_visaEndDate));
       datePicker3.trigger("change");
 
+
+
       let oldVisaCountryHolder = await clickListHolder('Previous Visa Issued Country*');
       await selectListFromHolder(oldVisaCountryHolder, profileData.app_OldeVisaCountry);
 
@@ -3867,6 +3930,9 @@ async function handleManageApplicantDetailAsync() {
 
 
 }
+
+
+
 
 
 /*
@@ -3901,5 +3967,18 @@ profileData.app_visaStartDate
 profileData.app_visaSubType
 profileData.app_visaType
 */
+
+
+function sendProxyChangeRequest() {
+
+  console.log("Detected restricted page (403 or 429). Requesting proxy change.");
+
+  // Send a message to the content script to activate the next proxy
+  window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
+  
+
+  // Check for error codes in the title
+  
+}
 
 
