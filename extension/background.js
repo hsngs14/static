@@ -102,9 +102,10 @@ chrome.webNavigation.onErrorOccurred.addListener((details) => {
       }, RETRY_DELAY);
       break;
 
-    // Handle HTTP 405 error by going back to the previous page
+    // Handle HTTP 400 and 405 errors by going back to the previous page
     case 'net::ERR_HTTP_RESPONSE_CODE_FAILURE':
-      if (details.frameId === 0 && details.statusCode === 405) { // Ensure it's the main frame and a 405 error
+      if (details.frameId === 0 && (details.statusCode === 400 || details.statusCode === 405)) { 
+        // Ensure it's the main frame and a 400 or 405 error
         chrome.tabs.goBack(details.tabId);
       }
       break;
