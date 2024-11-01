@@ -1,5 +1,7 @@
 console.log("************************************************");
 localStorage.setItem("scriptVersion", "84");
+localStorage.setItem("selection", localStorage.getItem("selection") || "Normal");
+
 var cityOld = localStorage.getItem("city");
 if (cityOld === "alger") {
   localStorage.setItem("city", "Algiers");
@@ -1245,6 +1247,7 @@ async function getLabelFor(labelString) {
   }
 }
 async function selectCategories() {
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
 
   await randomDelay();
@@ -1264,13 +1267,13 @@ async function selectCategories() {
 
   }
   let locationHolder = await clickListHolder('Location*');
-  await selectListFromHolder(locationHolder, `${localStorage.getItem("city")}`);
+  await selectListFromHolder(locationHolder, profileData.app_city);//await selectListFromHolder(locationHolder, `${localStorage.getItem("city")}`);
 
   let visaTypeHolder = await clickListHolder('Visa Type*');
-  await selectListFromHolder(visaTypeHolder, `${localStorage.getItem("selectionVisaType")}`);
+  await selectListFromHolder(visaTypeHolder, profileData.app_visaType);//await selectListFromHolder(visaTypeHolder, `${localStorage.getItem("selectionVisaType")}`);
 
   let visaSubTypeHolder = await clickListHolder('Visa Sub Type*');
-  await selectListFromHolder(visaSubTypeHolder, `${localStorage.getItem("selectionVisaSubType")}`);
+  await selectListFromHolder(visaSubTypeHolder, profileData.app_visaSubType);//await selectListFromHolder(visaSubTypeHolder, `${localStorage.getItem("selectionVisaSubType")}`);
 
   let CategoryHolder = await clickListHolder('Category*');
   await selectListFromHolder(CategoryHolder, `${localStorage.getItem("selection")}`);
@@ -2173,13 +2176,14 @@ if (
   !isTimeOver
 ) {
   let emailField = getElementByItsVisibleLabel("Email");
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
 
   if (!emailField) {
     console.warn("could not find email field");
   } else {
     console.log(emailField);
     // Get email value from localStorage
-    let email = localStorage.getItem("email");
+    let email = profileData.app_email; //localStorage.getItem("email");//;
 
     // Check if email is null or empty, and if so, redirect
     if (!email) {
@@ -2263,7 +2267,15 @@ async function handleNewCaptchaLoginAsync() {
         if (count < 1) {
           window.location.reload();
         } else {
-          $("#btnVerify").click();
+          if (document.querySelector('div.alert.alert-danger')?.textContent.trim().includes('The password is invalid')) {
+            console.log("Invalid password detected.");
+          }else{
+            $("#btnVerify").click();
+          }
+
+          
+
+          
         }
 
       }).catch(error => {
@@ -2710,8 +2722,9 @@ async function fetchEmail(aliasEmail, appPassword, subjectFilter = '', fromFilte
 
 // Example of an async function calling fetchEmail and awaiting the result
 async function getOtpAsync() {
-  const aliasEmail = localStorage.getItem("email");//"b.oudjelthiaabdelkader0101@gmail.com";
-  const appPassword = localStorage.getItem("emailpassword");;//"aoeq rqpd slih mssn"; // Provided app password
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
+  const aliasEmail = profileData.app_email;//localStorage.getItem("email");//"b.oudjelthiaabdelkader0101@gmail.com";
+  const appPassword = profileData.app_email_app_password;//localStorage.getItem("emailpassword");;//"aoeq rqpd slih mssn"; // Provided app password
   const subjectFilter = "BLS Visa Appointment - User Verification"; // Subject filter
   const fromFilter = "Info@blsinternational.com"; // From filter
   const otpPattern = "Your email verification code is as mentioned below[\\s\\S]*?(\\d{6})"; // Updated regex pattern
@@ -2759,8 +2772,9 @@ async function getOtpAsync() {
 
 // Example of an async function calling fetchEmail and awaiting the result
 async function getCallendarOtpAsync() {
-  const aliasEmail = localStorage.getItem("email");
-  const appPassword = localStorage.getItem("emailpassword");
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
+  const aliasEmail = profileData.app_email;//localStorage.getItem("email");
+  const appPassword = profileData.app_email_app_password;//localStorage.getItem("emailpassword");
   const subjectFilter = "BLS Visa Appointment - Email Verification";
   const fromFilter = "Info@blsinternational.com";
   const otpPattern = "Your verification code is as mentioned below[\\s\\S]*?(\\d{6})";
@@ -2805,8 +2819,9 @@ async function getCallendarOtpAsync() {
 
 //get password async from gmail
 async function getPasswordAsync() {
-  const aliasEmail = localStorage.getItem("email");//"b.oudjelthiaabdelkader0101@gmail.com";
-  const appPassword = localStorage.getItem("emailpassword");;//"aoeq rqpd slih mssn"; // Provided app password
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
+  const aliasEmail = profileData.app_email;//localStorage.getItem("email");//"b.oudjelthiaabdelkader0101@gmail.com";
+  const appPassword = profileData.app_email_app_password;//localStorage.getItem("emailpassword");;//"aoeq rqpd slih mssn"; // Provided app password
   const subjectFilter = "Welcome To BLS Appointment"; // Subject filter
   const fromFilter = "Info@blsinternational.com"; // From filter
   const otpPattern = "Password:\\s*(\\d{6})"; // Updated regex pattern
@@ -2887,6 +2902,8 @@ async function acceptDataAsync() {
 
 if (currentUrl.includes("/account/RegisterUser")) {
 
+  
+
   var autofillbutton = document.createElement("button");
   autofillbutton.innerHTML = "auto fill info";
   autofillbutton.s
@@ -2904,11 +2921,14 @@ if (currentUrl.includes("/account/RegisterUser")) {
 
   // Add click event listener to the button
   emailGeneratorButton.addEventListener("click", function () {
+    let profileData = JSON.parse(localStorage.getItem('profileData'));
     // Generate the random email alias
-    const emailAlias = generateRandomEmailAlias(localStorage.getItem('email'));
+    const emailAlias = generateRandomEmailAlias(profileData.app_email);//const emailAlias = generateRandomEmailAlias(localStorage.getItem('email'));
     // Assign the generated email alias to the emailOtpField
     emailOtpField.value = emailAlias;
-    localStorage.setItem('email', emailAlias);
+    profileData.app_email = emailAlias;
+    // Save the updated profileData back to localStorage
+    localStorage.setItem('profileData', JSON.stringify(profileData));
 
     // Copy the generated email alias to clipboard
     navigator.clipboard.writeText(emailAlias).then(() => {
@@ -3850,10 +3870,11 @@ if (currentUrl.includes(baseTarget + targetCounry + '/appointmentdata/myappointm
 
 }
 async function handleManageApplicantAsync() {
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
   let locationHolder = await clickListHolder('Location*');
-  await selectListFromHolder(locationHolder, `${localStorage.getItem("city")}`);
+  await selectListFromHolder(locationHolder, profileData.app_city);//await selectListFromHolder(locationHolder, `${localStorage.getItem("city")}`);
   let visaTypeHolder = await clickListHolder('Visa Type*');
-  await selectListFromHolder(visaTypeHolder, `${localStorage.getItem("selectionVisaType")}`);
+  await selectListFromHolder(visaTypeHolder, profileData.app_visaType);//await selectListFromHolder(visaTypeHolder, `${localStorage.getItem("selectionVisaType")}`);
 
   document.querySelector('#visaTypeModal > div > div > div.modal-footer > button.btn.btn-success')?.click();
 
