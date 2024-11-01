@@ -3970,11 +3970,14 @@ profileData.app_visaType
 
 
 function sendProxyChangeRequest() {
+  let delay = 1000*3;
 
   console.log("Detected restricted page (403 or 429). Requesting proxy change.");
 
   // Send a message to the content script to activate the next proxy
-  window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
+  setTimeout(() => {
+    window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
+  }, delay);
   
 
   // Check for error codes in the title
