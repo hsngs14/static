@@ -205,7 +205,7 @@ if (currentUrl.includes('account/RegisterUser')) {
   const FORM_MARGIN_FG = '20px';
   const TARGET_SELECTOR_FG = '#div-main > div';
 
-  const COUNTRIES_FG = ["Algeria","Spain","Afghanistan", "Albania", "American Samoa", "Andorra", "Angola", "Anguila"];
+  const COUNTRIES_FG = ["Algeria", "Spain", "Afghanistan", "Albania", "American Samoa", "Andorra", "Angola", "Anguila"];
   const GENDERS_FG = ["Male", "Female", "Other"];
   const MARITAL_STATUSES_FG = ["Single", "Married", "Divorced", "Widowed"];
   const PURPOSES_OF_JOURNEY_FG = ["Tourism", "Business", "Study", "Work", "Transit", "Others"];
@@ -496,8 +496,8 @@ if (currentUrl.includes('account/RegisterUser')) {
 
     // Create preview image
     const previewImage = createElementFG('img', {
-        id: 'uploadfile-1-preview',
-        src: '/assets/images/avatar/01.jpg',
+      id: 'uploadfile-1-preview',
+      src: '/assets/images/avatar/01.jpg',
     });
     previewImage.style.cssText = `
         width: 100%;
@@ -507,9 +507,9 @@ if (currentUrl.includes('account/RegisterUser')) {
 
     // Create hidden input for profile pic ID
     const profilePicInput = createElementFG('input', {
-        type: 'hidden',
-        id: 'app_profilePicId',
-        name: 'app_profilePicId'
+      type: 'hidden',
+      id: 'app_profilePicId',
+      name: 'app_profilePicId'
     });
     form.appendChild(profilePicInput);
 
@@ -536,58 +536,58 @@ if (currentUrl.includes('account/RegisterUser')) {
 
     // Add hover effects
     imageWrapper.addEventListener('mouseenter', () => {
-        overlay.style.opacity = '1';
+      overlay.style.opacity = '1';
     });
 
     imageWrapper.addEventListener('mouseleave', () => {
-        overlay.style.opacity = '0';
+      overlay.style.opacity = '0';
     });
 
     // Add click handler
     imageWrapper.addEventListener('click', () => {
-        const tempInput = createElementFG('input', {
-            type: 'file',
-            accept: 'image/*'
-        });
-        tempInput.style.display = 'none';
-        tempInput.onchange = (event) => {
-            const fileInput = event.target;
-            ShowPhotoLoaderFG();
-            const selectedFiles = [...fileInput.files];
-            var fd = new FormData();
-            
-            if (selectedFiles.length > 0) {
-                fd.append('file', selectedFiles[0]);
+      const tempInput = createElementFG('input', {
+        type: 'file',
+        accept: 'image/*'
+      });
+      tempInput.style.display = 'none';
+      tempInput.onchange = (event) => {
+        const fileInput = event.target;
+        ShowPhotoLoaderFG();
+        const selectedFiles = [...fileInput.files];
+        var fd = new FormData();
+
+        if (selectedFiles.length > 0) {
+          fd.append('file', selectedFiles[0]);
+        }
+
+        fetch(targetCounry + "/appointment/UploadApplicantPhoto", {
+          method: 'POST',
+          body: fd
+        })
+          .then(response => response.json())
+          .then(result => {
+            HidePhotoLoaderFG();
+            if (result.success) {
+              previewImage.src = targetCounry + "/query/getfile?fileid=" + result.fileId;
+              profilePicInput.value = result.fileId;
+
+              var modal = document.getElementById('photoUploadModal');
+              if (modal) {
+                var bootstrapModal = new bootstrap.Modal(modal);
+                bootstrapModal.show();
+              }
+            } else {
+              alert(result.err);
             }
-            
-            fetch(targetCounry+"/appointment/UploadApplicantPhoto", {
-                method: 'POST',
-                body: fd
-            })
-            .then(response => response.json())
-            .then(result => {
-                HidePhotoLoaderFG();
-                if (result.success) {
-                    previewImage.src = targetCounry+"/query/getfile?fileid=" + result.fileId;
-                    profilePicInput.value = result.fileId;
-                    
-                    var modal = document.getElementById('photoUploadModal');
-                    if (modal) {
-                        var bootstrapModal = new bootstrap.Modal(modal);
-                        bootstrapModal.show();
-                    }
-                } else {
-                    alert(result.err);
-                }
-            })
-            .catch(error => {
-                HidePhotoLoaderFG();
-                console.error('Error:', error);
-            });
-            
-            tempInput.remove();
-        };
-        tempInput.click();
+          })
+          .catch(error => {
+            HidePhotoLoaderFG();
+            console.error('Error:', error);
+          });
+
+        tempInput.remove();
+      };
+      tempInput.click();
     });
 
     // Assemble the image upload components
@@ -608,24 +608,24 @@ if (currentUrl.includes('account/RegisterUser')) {
 
     // Continue with the original form fields
     FORM_FIELDS_FG.forEach(field => {
-        const label = createLabelFG(field.id, field.label);
-        const inputWrapper = createElementFG('div');
-        inputWrapper.style.position = 'relative';
-        inputWrapper.style.marginBottom = '20px';
+      const label = createLabelFG(field.id, field.label);
+      const inputWrapper = createElementFG('div');
+      inputWrapper.style.position = 'relative';
+      inputWrapper.style.marginBottom = '20px';
 
-        const input = createInputFG(field);
+      const input = createInputFG(field);
 
-        if (field.type === 'autocomplete') {
-            const suggestionBox = createSuggestionBoxFG();
-            inputWrapper.appendChild(input);
-            inputWrapper.appendChild(suggestionBox);
-            setupAutocompleteFG(input, suggestionBox, field.options);
-        } else {
-            inputWrapper.appendChild(input);
-        }
+      if (field.type === 'autocomplete') {
+        const suggestionBox = createSuggestionBoxFG();
+        inputWrapper.appendChild(input);
+        inputWrapper.appendChild(suggestionBox);
+        setupAutocompleteFG(input, suggestionBox, field.options);
+      } else {
+        inputWrapper.appendChild(input);
+      }
 
-        form.appendChild(label);
-        form.appendChild(inputWrapper);
+      form.appendChild(label);
+      form.appendChild(inputWrapper);
     });
 
     const submitBtn = createElementFG('button', { type: 'button' });
@@ -644,7 +644,7 @@ if (currentUrl.includes('account/RegisterUser')) {
     form.appendChild(familyMembersContainer);
 
     return form;
-}
+  }
   // Event Handlers
   function handlePassportDateChangeFG() {
     const passportIssueDateInput = document.getElementById('app_passportIssueDate');
@@ -679,97 +679,101 @@ if (currentUrl.includes('account/RegisterUser')) {
   function handleSaveButtonFG(form) {
     const submitBtn = form.querySelector('button');
     submitBtn.addEventListener('click', (event) => {
-        updateFamilyMemberCountFG(); // Update the count before saving
-    
-        const profileData = {};
-    
-        // Collect main applicant data
-        FORM_FIELDS_FG.forEach(field => {
-            const input = document.getElementById(field.id);
-            if (input) {
-                profileData[field.id] = input.value;
-            }
-        });
+      updateFamilyMemberCountFG(); // Update the count before saving
 
-        // Add profile picture ID to profileData
-        const profilePicInput = document.getElementById('app_profilePicId');
-        if (profilePicInput && profilePicInput.value) {
-            profileData.app_profilePicId = profilePicInput.value;
+      const profileData = {};
+
+      // Collect main applicant data
+      FORM_FIELDS_FG.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (input) {
+          profileData[field.id] = input.value;
         }
-    
-        // Collect family member data
-        profileData.app_familyMembers = [];
-        const familyMemberDivs = form.querySelectorAll('.family-member');
-        familyMemberDivs.forEach((familyMemberDiv, index) => {
-            const familyMemberData = {};
-            FAMILY_MEMBER_FIELDS_FG.forEach(field => {
-                const fieldId = `family_member_${index + 1}_${field.id}`;
-                const input = document.getElementById(fieldId);
-                if (input) {
-                    familyMemberData[field.id] = input.value;
-                }
-            });
-            if (Object.keys(familyMemberData).length > 0) {
-                profileData.app_familyMembers.push(familyMemberData);
-            }
-        });
-    
-        // Save profileData to extension's local storage
-        chrome.storage.local.set({ profileData: profileData }, function () {
-            console.log('Profile data saved to extension local storage:', profileData);
-        });
-        localStorage.setItem('profileData', JSON.stringify(profileData));
-    });
-}
+      });
 
-function loadDataFromLocalStorageFG(form) {
-  chrome.storage.local.get(['profileData'], function (result) {
+      // Add profile picture ID to profileData
+      const profilePicInput = document.getElementById('app_profilePicId');
+      if (profilePicInput && profilePicInput.value) {
+        profileData.app_profilePicId = profilePicInput.value;
+      }
+
+      // Collect family member data
+      profileData.app_familyMembers = [];
+      const familyMemberDivs = form.querySelectorAll('.family-member');
+      familyMemberDivs.forEach((familyMemberDiv, index) => {
+        const familyMemberData = {};
+        FAMILY_MEMBER_FIELDS_FG.forEach(field => {
+          const fieldId = `family_member_${index + 1}_${field.id}`;
+          const input = document.getElementById(fieldId);
+          if (input) {
+            familyMemberData[field.id] = input.value;
+          }
+        });
+        if (Object.keys(familyMemberData).length > 0) {
+          profileData.app_familyMembers.push(familyMemberData);
+        }
+      });
+
+      // Save profileData to extension's local storage
+      chrome.storage.local.set({ profileData: profileData }, function () {
+        console.log('Profile data saved to extension local storage:', profileData);
+      });
+      localStorage.setItem('profileData', JSON.stringify(profileData));
+    });
+  }
+
+  function loadDataFromLocalStorageFG(form) {
+    chrome.storage.local.get(['profileData'], function (result) {
       let profileData = result.profileData;  // Changed const to let
 
       if (!profileData) {
-          const localStorageData = localStorage.getItem('profileData');
-          profileData = localStorageData ? JSON.parse(localStorageData) : null;
+        let localStorageData = localStorage.getItem('profileData');
+        profileData = localStorageData ? JSON.parse(localStorageData) : null;
       }
+      if (localStorage.getItem('profileData')) {
+        profileData = JSON.parse(localStorage.getItem('profileData'));
+      }
+
 
       if (profileData) {
-          // Load main applicant data from storage
-          FORM_FIELDS_FG.forEach(field => {
-              const input = document.getElementById(field.id);
-              if (input && profileData[field.id]) {
-                  input.value = profileData[field.id];
-              }
+        // Load main applicant data from storage
+        FORM_FIELDS_FG.forEach(field => {
+          const input = document.getElementById(field.id);
+          if (input && profileData[field.id]) {
+            input.value = profileData[field.id];
+          }
+        });
+
+        // Load profile picture if available
+        if (profileData.app_profilePicId) {
+          const previewImage = document.getElementById('uploadfile-1-preview');
+          const profilePicInput = document.getElementById('app_profilePicId');
+          if (previewImage) {
+            previewImage.src = targetCounry + "/query/getfile?fileid=" + profileData.app_profilePicId;
+          }
+          if (profilePicInput) {
+            profilePicInput.value = profileData.app_profilePicId;
+          }
+        }
+
+        // Load family member data from storage
+        const familyMembersContainer = form.querySelector('#familyMembersContainer');
+        if (profileData.app_familyMembers && Array.isArray(profileData.app_familyMembers)) {
+          profileData.app_familyMembers.forEach(familyMemberData => {
+            const familyMemberFields = createFamilyMemberFieldsFG(familyMemberData);
+            familyMembersContainer.appendChild(familyMemberFields);
           });
+        }
 
-          // Load profile picture if available
-          if (profileData.app_profilePicId) {
-              const previewImage = document.getElementById('uploadfile-1-preview');
-              const profilePicInput = document.getElementById('app_profilePicId');
-              if (previewImage) {
-                  previewImage.src = targetCounry + "/query/getfile?fileid=" + profileData.app_profilePicId;
-              }
-              if (profilePicInput) {
-                  profilePicInput.value = profileData.app_profilePicId;
-              }
-          }
+        updateFamilyMemberCountFG();
 
-          // Load family member data from storage
-          const familyMembersContainer = form.querySelector('#familyMembersContainer');
-          if (profileData.app_familyMembers && Array.isArray(profileData.app_familyMembers)) {
-              profileData.app_familyMembers.forEach(familyMemberData => {
-                  const familyMemberFields = createFamilyMemberFieldsFG(familyMemberData);
-                  familyMembersContainer.appendChild(familyMemberFields);
-              });
-          }
-
-          updateFamilyMemberCountFG();
-
-          // Save to localStorage if it was loaded from Chrome storage
-          localStorage.setItem('profileData', JSON.stringify(profileData));
+        // Save to localStorage if it was loaded from Chrome storage
+        localStorage.setItem('profileData', JSON.stringify(profileData));
       } else {
-          console.log('No profile data found in Chrome storage or localStorage.');
+        console.log('No profile data found in Chrome storage or localStorage.');
       }
-  });
-}
+    });
+  }
 
 
   // Main Execution
@@ -799,68 +803,68 @@ if (
   currentUrl.startsWith('https://epay.poste.dz/payment/merchants/') ||
   currentUrl.startsWith('https://cib.satim.dz/payment') ||
   currentUrl.startsWith('https://epay.poste.dz/')
-)  {
-console.log('poste ccp website detected');
-chrome.storage.local.get('profileData', function (result) {
-  console.log('profileData in chrome.storage.local:', result.profileData);
+) {
+  console.log('poste ccp website detected');
+  chrome.storage.local.get('profileData', function (result) {
+    console.log('profileData in chrome.storage.local:', result.profileData);
 
-  if (result.profileData) {
+    if (result.profileData) {
       // Extract Dhahabya data from profileData
       var dhahabyaData = {
-          number_card: result.profileData.app_dhahabyaCardNumber || "",
-          cvc: result.profileData.app_dhahabyaCVV || "",
-          name_card: result.profileData.app_dhahabyaFullName || ""
+        number_card: result.profileData.app_dhahabyaCardNumber || "",
+        cvc: result.profileData.app_dhahabyaCVV || "",
+        name_card: result.profileData.app_dhahabyaFullName || ""
       };
 
       // Extract month and year from the expiration date
       if (result.profileData.app_dhahabyaExpirationDate) {
-          var expParts = result.profileData.app_dhahabyaExpirationDate.split('/');
-          dhahabyaData.month = expParts[0] || "";
-          dhahabyaData.year = expParts[1] || "";
+        var expParts = result.profileData.app_dhahabyaExpirationDate.split('/');
+        dhahabyaData.month = expParts[0] || "";
+        dhahabyaData.year = expParts[1] || "";
       } else {
-          dhahabyaData.month = "";
-          dhahabyaData.year = "";
+        dhahabyaData.month = "";
+        dhahabyaData.year = "";
       }
 
       // Function to fill card data into input fields
       function fillCardData(data) {
-          var fields = {
-              "#iPAN": data.number_card,
-              "#iCVC": data.cvc,
-              "#month": data.month,
-              "#year": data.year,
-              "#iTEXT": data.name_card
-          };
+        var fields = {
+          "#iPAN": data.number_card,
+          "#iCVC": data.cvc,
+          "#month": data.month,
+          "#year": data.year,
+          "#iTEXT": data.name_card
+        };
 
-          for (var selector in fields) {
-              var element = document.querySelector(selector);
-              if (element) {
-                  element.value = fields[selector];
-                  // Trigger any necessary events (e.g., for React controlled inputs)
-                  element.dispatchEvent(new Event('input', { bubbles: true }));
-                  element.dispatchEvent(new Event('change', { bubbles: true }));
-              }
+        for (var selector in fields) {
+          var element = document.querySelector(selector);
+          if (element) {
+            element.value = fields[selector];
+            // Trigger any necessary events (e.g., for React controlled inputs)
+            element.dispatchEvent(new Event('input', { bubbles: true }));
+            element.dispatchEvent(new Event('change', { bubbles: true }));
           }
+        }
       }
 
       // Fill the form fields immediately
       fillCardData(dhahabyaData);
       function triggerEvents(element) {
         //    element.dispatchEvent(new Event('input', { bubbles: true }));
-           element.dispatchEvent(new Event('change', { bubbles: true }));
+        element.dispatchEvent(new Event('change', { bubbles: true }));
         //    element.dispatchEvent(new Event('focusout', { bubbles: true }));
-        }
-        
-        // Trigger events for each field
-        triggerEvents(document.getElementById('iPAN'));
-        triggerEvents(document.getElementById('iCVC'));
-        triggerEvents(document.getElementById('month'));
-        triggerEvents(document.getElementById('year'));
-        triggerEvents(document.getElementById('iTEXT'));
-  } else {
+      }
+
+      // Trigger events for each field
+      triggerEvents(document.getElementById('iPAN'));
+      triggerEvents(document.getElementById('iCVC'));
+      triggerEvents(document.getElementById('month'));
+      triggerEvents(document.getElementById('year'));
+      triggerEvents(document.getElementById('iTEXT'));
+    } else {
       console.log('No profileData found in storage');
-  }
-});
+    }
+  });
 
 
 
@@ -869,7 +873,7 @@ chrome.storage.local.get('profileData', function (result) {
 window.addEventListener("load", () => {
   // Your code here
 
-  
+
 });
 
 
@@ -879,21 +883,21 @@ function ShowPhotoLoaderFG() {
   const imageWrapper = document.querySelector('.image-wrapper');
   const previewImage = document.getElementById('uploadfile-1-preview');
   if (imageWrapper && previewImage) {
-      // Hide the current image
-      previewImage.style.opacity = '0.3';
-      
-      // Create and add the loader if it doesn't exist
-      let loader = imageWrapper.querySelector('.photo-loader');
-      if (!loader) {
-          loader = document.createElement('div');
-          loader.className = 'photo-loader';
-          loader.innerHTML = `
+    // Hide the current image
+    previewImage.style.opacity = '0.3';
+
+    // Create and add the loader if it doesn't exist
+    let loader = imageWrapper.querySelector('.photo-loader');
+    if (!loader) {
+      loader = document.createElement('div');
+      loader.className = 'photo-loader';
+      loader.innerHTML = `
               <div class="spinner"></div>
           `;
-          
-          // Add loader styles
-          const style = document.createElement('style');
-          style.textContent = `
+
+      // Add loader styles
+      const style = document.createElement('style');
+      style.textContent = `
               .photo-loader {
                   position: absolute;
                   top: 0;
@@ -918,12 +922,12 @@ function ShowPhotoLoaderFG() {
                   100% { transform: rotate(360deg); }
               }
           `;
-          document.head.appendChild(style);
-          
-          imageWrapper.appendChild(loader);
-      } else {
-          loader.style.display = 'flex';
-      }
+      document.head.appendChild(style);
+
+      imageWrapper.appendChild(loader);
+    } else {
+      loader.style.display = 'flex';
+    }
   }
 }
 
@@ -931,13 +935,14 @@ function HidePhotoLoaderFG() {
   const imageWrapper = document.querySelector('.image-wrapper');
   const previewImage = document.getElementById('uploadfile-1-preview');
   const loader = document.querySelector('.photo-loader');
-  
+
   if (previewImage) {
-      previewImage.style.opacity = '1';
+    previewImage.style.opacity = '1';
   }
-  
+
   if (loader) {
-      loader.style.display = 'none';
+    loader.style.display = 'none';
   }
 }
 
+profileData
