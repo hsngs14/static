@@ -90,7 +90,7 @@ if (currentUrl.includes("spain.blscn.cn")) {
   targetCounry = "/Global";
 }
 
-if(isBlsWebSite){
+if (isBlsWebSite) {
   saveSettings1();
   function saveSettings1() {
     const settings = {
@@ -195,49 +195,60 @@ function initializeHeaderComponents() {
 if (isBlsWebSite) {
   // Call the function to create and append the button
   initializeHeaderComponents();
-  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), "switchCategoryButtonId");
+
+
+
+
+  const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
+  const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
+  addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle');
+
+  addInputToMenu('Enter delay in seconds', updateProxyDelay, 'proxy-delay-input');
+
+  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), "manageClientbtnId");
   addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), "switchCategoryButtonId");
+  addInputToMenu('Enter category speed in seconds', updateCategorySpeed, 'category-speed-input');
   addButtonToMenu(localStorage.getItem('email') || "No user", () => aliasSwitcher('switchAliasButtonId'), "switchAliasButtonId");
   let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha'));
   if (useLocalCaptchaUI === null) {
     useLocalCaptchaUI = true;
     localStorage.setItem('local_captcha', JSON.stringify(true));
   }
-  let useLocalCaptchaUIText ="trueCaptcha" ;
-  if(useLocalCaptchaUI){
+  let useLocalCaptchaUIText = "trueCaptcha";
+  if (useLocalCaptchaUI) {
     useLocalCaptchaUIText = "Local captcha";
   }
   addButtonToMenu(useLocalCaptchaUIText, () => captchaSwitcher('switchCaptchaButtonId'), "switchCaptchaButtonId");
   let switchPasswordButtonName = "no password selected";
-  if(localStorage.getItem('passwordchanged')==='false'){
+  if (localStorage.getItem('passwordchanged') === 'false') {
     switchPasswordButtonName = "temp passowrd";
 
-  } else if (localStorage.getItem('passwordchanged')==='true'){
-    switchPasswordButtonName ="regular password";
+  } else if (localStorage.getItem('passwordchanged') === 'true') {
+    switchPasswordButtonName = "regular password";
   }
-  
+
   addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), "passwordSwitcherButtonId");
 
   // Add "Copy to Clipboard" button
-addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton');
+  addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton');
 
-// Add small text input for JSON data and save button
-const inputField = document.createElement('input');
-inputField.id = 'profileDataInput';
-inputField.placeholder = 'Paste JSON here...';
-inputField.style.width = '250px';  // Smaller input box
-inputField.style.margin = '5px';   // Add some margin for spacing
-menuElement.appendChild(inputField);
+  // Add small text input for JSON data and save button
+  const inputField = document.createElement('input');
+  inputField.id = 'profileDataInput';
+  inputField.placeholder = 'Paste JSON here...';
+  inputField.style.width = '250px';  // Smaller input box
+  inputField.style.margin = '5px';   // Add some margin for spacing
+  menuElement.appendChild(inputField);
 
-// Add feedback area for user messages
-feedbackElement = document.createElement('div');
-feedbackElement.id = 'feedbackMessage';
-feedbackElement.style.marginTop = '10px';  // Add space above feedback
-feedbackElement.style.fontSize = '12px';   // Make it a bit smaller
-menuElement.appendChild(feedbackElement);  // Append feedback element below the buttons
+  // Add feedback area for user messages
+  feedbackElement = document.createElement('div');
+  feedbackElement.id = 'feedbackMessage';
+  feedbackElement.style.marginTop = '10px';  // Add space above feedback
+  feedbackElement.style.fontSize = '12px';   // Make it a bit smaller
+  menuElement.appendChild(feedbackElement);  // Append feedback element below the buttons
 
-// Add "Save Pasted Data" button
-addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton');
+  // Add "Save Pasted Data" button
+  addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton');
 
   notificationElement.textContent = "BruteForce V" + localStorage.getItem("scriptVersion");
   //createRefreshCategoryButton();
@@ -326,13 +337,13 @@ if (
 }
 if (changeProxyWhenTooManyRequest &&
   (
-  pageTitle.includes("403") ||
-  pageTitle.includes("429") ||
-  pageTitle.includes("Too Many Requests")
-)
+    pageTitle.includes("403") ||
+    pageTitle.includes("429") ||
+    pageTitle.includes("Too Many Requests")
+  )
 ) {
   sendProxyChangeRequest();
- 
+
 } else {
   console.log("No proxy change needed. Page title:", pageTitle);
 }
@@ -960,17 +971,17 @@ if (
   if (savedProfileImage) {
     profileImage.src = savedProfileImage;
   }*/
-    let profilePicId333 = localStorage.getItem("profilepicId");
+  let profilePicId333 = localStorage.getItem("profilepicId");
 
-    if (profilePicId333 !== null && profilePicId333 !== '' && profilePicId333 !== undefined) {
-      profileImage.src = `${targetCounry}/query/getfile?fileid=${localStorage.getItem(
-        "profilepicId"
-      )}`;
-    } else {
-        console.log("profilepicId is null, empty, or undefined.");
-    }
-    
-  
+  if (profilePicId333 !== null && profilePicId333 !== '' && profilePicId333 !== undefined) {
+    profileImage.src = `${targetCounry}/query/getfile?fileid=${localStorage.getItem(
+      "profilepicId"
+    )}`;
+  } else {
+    console.log("profilepicId is null, empty, or undefined.");
+  }
+
+
 
   //////////////////////////
   function downloadImage1() {
@@ -1109,7 +1120,7 @@ function randomDelay() {
   return new Promise(resolve => setTimeout(resolve, randomTime));
 }
 */
-function randomDelay(from = settings.categorySpeed, to) {
+function randomDelay(from = localStorage.getItem('categorySpeed') || 1, to) {
   if (to === undefined) {
     to = from * 1.2;  // Set 'to' to 20% more than 'from' if not provided
   }
@@ -1524,7 +1535,7 @@ if (visaTypeSelectionElement) {
   console.log('The visa type selection element does not exist.');
 }
 if (currentUrl.includes("Appointment/ApplicantSelection")) {
-localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
+  localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
 
   const otpButton_xyz1 = document.createElement('button');
   otpButton_xyz1.innerText = 'Get Otp'; // Button text
@@ -1566,15 +1577,15 @@ localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
   let photoID = JSON.parse(localStorage.getItem('profileData') || '{}').app_profilePicId;
 
   if (photoID) {
-      $("#uploadfile-1-preview").attr("src", targetCounry + "/query/getfile?fileid=" + photoID);
-      $("#ApplicantPhotoId").val(photoID);
+    $("#uploadfile-1-preview").attr("src", targetCounry + "/query/getfile?fileid=" + photoID);
+    $("#ApplicantPhotoId").val(photoID);
   }
-  if(localStorage.getItem("individuals")>1){
+  if (localStorage.getItem("individuals") > 1) {
     document.querySelectorAll('[id^="app-"]').forEach(element => element.click());
-  }else{
+  } else {
     document.querySelector('.rdo-applicant[id^="rdo-"]').click();
   }
-  
+
 
   setTimeout(() => {
     otpButton_xyz1.click();
@@ -1588,33 +1599,33 @@ localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
 async function skipAllPayment() {
   let isPayment = false;
   for (let i = 1; i <= 10; i++) {
-      // Updated selector to match the structure
-      const buttonSelector = `#vas_${i} > div > div.card-footer.p-0.pt-4 > div > div.col-md-3.col-sm-12 > button`;
+    // Updated selector to match the structure
+    const buttonSelector = `#vas_${i} > div > div.card-footer.p-0.pt-4 > div > div.col-md-3.col-sm-12 > button`;
 
-      // Check if the element exists
-      const button = document.querySelector(buttonSelector);
+    // Check if the element exists
+    const button = document.querySelector(buttonSelector);
 
-      // If the button exists, click it
-      if (button) {
-          isPayment = true;
-          button.click();
-      }
+    // If the button exists, click it
+    if (button) {
+      isPayment = true;
+      button.click();
+    }
 
-      // Wait for 1 second (1000 ms) before moving to the next button
-      await delay(1000);
+    // Wait for 1 second (1000 ms) before moving to the next button
+    await delay(1000);
   }
-  if(isPayment===false)
-      return;
+  if (isPayment === false)
+    return;
   // After the loop, wait for 1 second (1000 ms)
   await delay(1000);
 
   // Click the #btnPayAmount button after the delay
   const payButton = document.querySelector('#btnPayAmount');
   if (payButton) {
-      payButton.click();
-      console.log('#btnPayAmount clicked.');
+    payButton.click();
+    console.log('#btnPayAmount clicked.');
   } else {
-      console.log('#btnPayAmount not found.');
+    console.log('#btnPayAmount not found.');
   }
 
   // After another 1 second delay, click the #payConfirm button
@@ -1622,10 +1633,10 @@ async function skipAllPayment() {
 
   const confirmButton = document.querySelector('#payConfirm');
   if (confirmButton) {
-      confirmButton.click();
-      console.log('#payConfirm clicked.');
+    confirmButton.click();
+    console.log('#payConfirm clicked.');
   } else {
-      console.log('#payConfirm not found.');
+    console.log('#payConfirm not found.');
   }
 }
 
@@ -1634,28 +1645,28 @@ skipAllPayment();
 
 setTimeout(() => {
   // Check if the #payConfirm element exists
-if (document.querySelector('#payConfirm')) {
-    
-  // Create the Repay button
-  let repayButton = document.createElement('button');
-  repayButton.id = 'repayButton';
-  repayButton.innerText = 'Repay';
-  repayButton.classList.add('btn', 'btn-success');
-  
-  // Insert the Repay button next to the #payConfirm button
-  document.querySelector('#payConfirm').insertAdjacentElement('afterend', repayButton);
-  
-  // Add event listener to enable #payConfirm and simulate a click on it
-  repayButton.addEventListener('click', function() {
+  if (document.querySelector('#payConfirm')) {
+
+    // Create the Repay button
+    let repayButton = document.createElement('button');
+    repayButton.id = 'repayButton';
+    repayButton.innerText = 'Repay';
+    repayButton.classList.add('btn', 'btn-success');
+
+    // Insert the Repay button next to the #payConfirm button
+    document.querySelector('#payConfirm').insertAdjacentElement('afterend', repayButton);
+
+    // Add event listener to enable #payConfirm and simulate a click on it
+    repayButton.addEventListener('click', function () {
       let payConfirmButton = document.querySelector('#payConfirm');
       payConfirmButton.disabled = false;  // Enable the payConfirm button
       payConfirmButton.click();  // Simulate a click on the payConfirm button
       payConfirmButton.disabled = true;
-  });
-  
-} else {
-  //console.log('Element #payConfirm not found.');
-}
+    });
+
+  } else {
+    //console.log('Element #payConfirm not found.');
+  }
 
 }, 2000);
 
@@ -2173,7 +2184,7 @@ if (
     // Check if email is null or empty, and if so, redirect
     if (!email) {
       // Redirect to the registration page if email is null or empty
-      window.location.href = baseTarget + targetCounry + "/account/RegisterUser";
+      //window.location.href = baseTarget + targetCounry + "/account/RegisterUser";
     } else {
       // If email exists, set it to the email field
       emailField.value = localStorage.getItem("email");
@@ -2245,277 +2256,277 @@ async function handleNewCaptchaLoginAsync() {
       console.log("Element not found");
     }
     var useNewCaptchaFix = true;
-    if(useNewCaptchaFix){
+    if (useNewCaptchaFix) {
 
       getCaptchaGridAndClick().then(count => {
         console.log('Counting is', count);
-        if(count<1){
+        if (count < 1) {
           window.location.reload();
-        }else{
+        } else {
           $("#btnVerify").click();
         }
-        
+
       }).catch(error => {
         console.error('Error:', error); // Handle any potential errors
       });
 
-    }else{
+    } else {
 
       var captchas = []; // Initialize captchas as an empty array
-    var targetNumber;
-    var elements = $("#btnVerify"); // Assuming there is only one element with the ID 'btnVerify'
+      var targetNumber;
+      var elements = $("#btnVerify"); // Assuming there is only one element with the ID 'btnVerify'
 
-    // Define an array to store the elements
-    var aboveElementsArray = [];
+      // Define an array to store the elements
+      var aboveElementsArray = [];
 
-    // Define an array of offset values
-    var offsetValues = [140, 240, 340, 420];
+      // Define an array of offset values
+      var offsetValues = [140, 240, 340, 420];
 
-    // Function to add a red dot at specific coordinates
-    function addRedDotAtCoordinates(x, y) {
-      const dot = document.createElement('div');
-      dot.style.position = 'fixed';
-      dot.style.width = '10px';
-      dot.style.height = '10px';
-      dot.style.backgroundColor = 'red';
-      dot.style.borderRadius = '50%';
-      dot.style.top = y + 'px';
-      dot.style.left = x + 'px';
-      dot.style.zIndex = '9999';
-      document.body.appendChild(dot);
-    }
+      // Function to add a red dot at specific coordinates
+      function addRedDotAtCoordinates(x, y) {
+        const dot = document.createElement('div');
+        dot.style.position = 'fixed';
+        dot.style.width = '10px';
+        dot.style.height = '10px';
+        dot.style.backgroundColor = 'red';
+        dot.style.borderRadius = '50%';
+        dot.style.top = y + 'px';
+        dot.style.left = x + 'px';
+        dot.style.zIndex = '9999';
+        document.body.appendChild(dot);
+      }
 
-    // Loop through each offset value
-    offsetValues.forEach(function (offset) {
-      // Loop through each 'elements' array
-      elements.each(function (index, element) {
-        // Get the bounding rectangle of the current element
-        const targetRect = element.getBoundingClientRect();
+      // Loop through each offset value
+      offsetValues.forEach(function (offset) {
+        // Loop through each 'elements' array
+        elements.each(function (index, element) {
+          // Get the bounding rectangle of the current element
+          const targetRect = element.getBoundingClientRect();
 
-        // Calculate the coordinates of the element above the target div by the current offset
-        const aboveElementTop = targetRect.top - offset;
-        const aboveElementLeft = targetRect.left;
-        const aboveElementRight = targetRect.right;
+          // Calculate the coordinates of the element above the target div by the current offset
+          const aboveElementTop = targetRect.top - offset;
+          const aboveElementLeft = targetRect.left;
+          const aboveElementRight = targetRect.right;
 
-        // Find the element above the target div
-        const aboveElement = document.elementFromPoint(
-          (aboveElementLeft + aboveElementRight) / 2,
-          aboveElementTop
-        );
+          // Find the element above the target div
+          const aboveElement = document.elementFromPoint(
+            (aboveElementLeft + aboveElementRight) / 2,
+            aboveElementTop
+          );
 
-        // Add the element to the array
-        aboveElementsArray.push(aboveElement);
+          // Add the element to the array
+          aboveElementsArray.push(aboveElement);
 
-        // Add a red dot at the calculated coordinates
-        addRedDotAtCoordinates((aboveElementLeft + aboveElementRight) / 2, aboveElementTop);
+          // Add a red dot at the calculated coordinates
+          addRedDotAtCoordinates((aboveElementLeft + aboveElementRight) / 2, aboveElementTop);
+        });
       });
-    });
 
-    // Push the first three elements from aboveElementsArray to captchas
-    captchas.push(aboveElementsArray[0]);
-    captchas.push(aboveElementsArray[1]);
-    captchas.push(aboveElementsArray[2]);
+      // Push the first three elements from aboveElementsArray to captchas
+      captchas.push(aboveElementsArray[0]);
+      captchas.push(aboveElementsArray[1]);
+      captchas.push(aboveElementsArray[2]);
 
-    targetNumber = aboveElementsArray[3];
+      targetNumber = aboveElementsArray[3];
 
-    console.log(targetNumber);
+      console.log(targetNumber);
 
-    var elements = []; // Define an array to store the elements
-    // elements.push($('#btnVerify')); // If you want to push a jQuery object
+      var elements = []; // Define an array to store the elements
+      // elements.push($('#btnVerify')); // If you want to push a jQuery object
 
-    var links = document.querySelectorAll("a");
-    var goToLoginVsReload = "Goto Login Page"
-    if (middleCaptcha) {
-      goToLoginVsReload = "Reload";
-    }
-    var filteredLinks = Array.from(links).filter(
-      (link) => link.textContent.trim() === goToLoginVsReload
-    );
-
-    if (filteredLinks[0]) {
-      elements.push(filteredLinks[0]);
-    }
-
-    // Define an array to store the elements
-    var aboveElementsArray = [];
-
-    // Define an array of offset values
-    var offsetValues = [40, 150, 260];
-
-    // Loop through each offset value
-    offsetValues.forEach(function (offset) {
-      // Loop through each 'elements' array
-      elements.forEach(function (element) {
-        // Get the bounding rectangle of the current element
-        const targetRect = element.getBoundingClientRect();
-
-        // Calculate the coordinates of the element above the target div by the current offset
-        const aboveElementTop = targetRect.top - offset;
-        const aboveElementLeft = targetRect.left;
-        const aboveElementRight = targetRect.right;
-
-        // Find the element above the target div
-        const aboveElement = document.elementFromPoint(
-          (aboveElementLeft + aboveElementRight) / 2,
-          aboveElementTop
-        );
-
-        // Add the element to the array
-        aboveElementsArray.push(aboveElement);
-
-        // Add a red dot at the calculated coordinates
-        addRedDotAtCoordinates((aboveElementLeft + aboveElementRight) / 2, aboveElementTop);
-      });
-    });
-
-    // Push the first three elements from aboveElementsArray to captchas
-    captchas.push(aboveElementsArray[0]);
-    captchas.push(aboveElementsArray[1]);
-    captchas.push(aboveElementsArray[2]);
-
-    var elements = []; // Define an array to store the elements
-    // elements.push($('#btnVerify')); // If you want to push a jQuery object
-
-    var links = document.querySelectorAll("a");
-    var filteredLinks = Array.from(links).filter(
-      (link) => link.textContent.trim() === "Clear Selection"
-    );
-
-    if (filteredLinks[0]) {
-      elements.push(filteredLinks[0]);
-    }
-
-    // Define an array to store the elements
-    var aboveElementsArray = [];
-
-    // Define an array of offset values
-    var offsetValues = [40, 150, 260];
-
-    // Loop through each offset value
-    offsetValues.forEach(function (offset) {
-      // Loop through each 'elements' array
-      elements.forEach(function (element) {
-        // Get the bounding rectangle of the current element
-        const targetRect = element.getBoundingClientRect();
-
-        // Calculate the coordinates of the element above the target div by the current offset
-        const aboveElementTop = targetRect.top - offset;
-        const aboveElementLeft = targetRect.left;
-        const aboveElementRight = targetRect.right;
-
-        // Find the element above the target div
-        const aboveElement = document.elementFromPoint(
-          (aboveElementLeft + aboveElementRight) / 2,
-          aboveElementTop
-        );
-
-        // Add the element to the array
-        aboveElementsArray.push(aboveElement);
-
-        // Add a red dot at the calculated coordinates
-        addRedDotAtCoordinates((aboveElementLeft + aboveElementRight) / 2, aboveElementTop);
-      });
-    });
-
-    // Push the first three elements from aboveElementsArray to captchas
-    captchas.push(aboveElementsArray[0]);
-    captchas.push(aboveElementsArray[1]);
-    captchas.push(aboveElementsArray[2]);
-
-    console.log(captchas);
-
-    function extractNumberFromString(str) {
-      const match = str.match(/\d+/);
-      return match ? match[0] : null;
-    }
-
-    const targetNumber1 = extractNumberFromString(targetNumber.textContent);
-
-    console.log(targetNumber1);
-
-    // Function to extract number from string
-    function extractNumberFromString(str) {
-      const match = str.match(/\d+/);
-      return match ? match[0] : null;
-    }
-
-    // Iterate through each captcha image
-    let newCaptchaCount = 0;
-    captchas.forEach((element, index) => {
-      const imageData = element.src.replace(
-        /^data:image\/(png|jpg|jpeg|gif);base64,/,
-        ""
+      var links = document.querySelectorAll("a");
+      var goToLoginVsReload = "Goto Login Page"
+      if (middleCaptcha) {
+        goToLoginVsReload = "Reload";
+      }
+      var filteredLinks = Array.from(links).filter(
+        (link) => link.textContent.trim() === goToLoginVsReload
       );
 
-      // Assuming aboveElementsArray is defined and populated correctly
-      const aboveElementsArray = Array.from(
-        document.querySelectorAll(".your-selector")
-      ); // Replace '.your-selector' with your actual selector
+      if (filteredLinks[0]) {
+        elements.push(filteredLinks[0]);
+      }
 
-      // Call the TrueCaptcha API to get the result from the image
-      get_captcha(imageData, function (data) {
-        // Extract the result from TrueCaptcha response
-        const captchaResult = data.result;
+      // Define an array to store the elements
+      var aboveElementsArray = [];
 
-        // Compare the result from TrueCaptcha with the target number
-        if (captchaResult === targetNumber1) {
-          element.click();
-        } else {
-          // Handle incorrect captcha result
-        }
+      // Define an array of offset values
+      var offsetValues = [40, 150, 260];
 
-        newCaptchaCount++;
+      // Loop through each offset value
+      offsetValues.forEach(function (offset) {
+        // Loop through each 'elements' array
+        elements.forEach(function (element) {
+          // Get the bounding rectangle of the current element
+          const targetRect = element.getBoundingClientRect();
 
-        // Check if all captchas have been processed
-        if (newCaptchaCount === captchas.length) {
-          // All captchas have been processed
-          console.log("all captchas are done");
-          //debugger;
-          $("#btnVerify").click();
-        }
+          // Calculate the coordinates of the element above the target div by the current offset
+          const aboveElementTop = targetRect.top - offset;
+          const aboveElementLeft = targetRect.left;
+          const aboveElementRight = targetRect.right;
+
+          // Find the element above the target div
+          const aboveElement = document.elementFromPoint(
+            (aboveElementLeft + aboveElementRight) / 2,
+            aboveElementTop
+          );
+
+          // Add the element to the array
+          aboveElementsArray.push(aboveElement);
+
+          // Add a red dot at the calculated coordinates
+          addRedDotAtCoordinates((aboveElementLeft + aboveElementRight) / 2, aboveElementTop);
+        });
       });
 
-      // Add a red dot at the coordinates of the captcha element
-      const rect = element.getBoundingClientRect();
-      //addRedDotAtCoordinates(rect.left, rect.top);
-    });
+      // Push the first three elements from aboveElementsArray to captchas
+      captchas.push(aboveElementsArray[0]);
+      captchas.push(aboveElementsArray[1]);
+      captchas.push(aboveElementsArray[2]);
 
-    function get_captcha(image_data, callback) {
-      // Remove the data URL prefix if present
-      const base64Image = image_data.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, "");
+      var elements = []; // Define an array to store the elements
+      // elements.push($('#btnVerify')); // If you want to push a jQuery object
 
-      const params = {
-        image: base64Image
-      };
+      var links = document.querySelectorAll("a");
+      var filteredLinks = Array.from(links).filter(
+        (link) => link.textContent.trim() === "Clear Selection"
+      );
 
-      const url = "http://localhost:5000/ocr"; // Update this if your server is on a different port or IP
+      if (filteredLinks[0]) {
+        elements.push(filteredLinks[0]);
+      }
 
-      fetch(url, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(params)
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          // Assuming your server returns { result: "extracted_numbers" }
-          callback({ result: data.result });
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          callback({ error: 'Failed to process image' });
+      // Define an array to store the elements
+      var aboveElementsArray = [];
+
+      // Define an array of offset values
+      var offsetValues = [40, 150, 260];
+
+      // Loop through each offset value
+      offsetValues.forEach(function (offset) {
+        // Loop through each 'elements' array
+        elements.forEach(function (element) {
+          // Get the bounding rectangle of the current element
+          const targetRect = element.getBoundingClientRect();
+
+          // Calculate the coordinates of the element above the target div by the current offset
+          const aboveElementTop = targetRect.top - offset;
+          const aboveElementLeft = targetRect.left;
+          const aboveElementRight = targetRect.right;
+
+          // Find the element above the target div
+          const aboveElement = document.elementFromPoint(
+            (aboveElementLeft + aboveElementRight) / 2,
+            aboveElementTop
+          );
+
+          // Add the element to the array
+          aboveElementsArray.push(aboveElement);
+
+          // Add a red dot at the calculated coordinates
+          addRedDotAtCoordinates((aboveElementLeft + aboveElementRight) / 2, aboveElementTop);
         });
-    }
+      });
+
+      // Push the first three elements from aboveElementsArray to captchas
+      captchas.push(aboveElementsArray[0]);
+      captchas.push(aboveElementsArray[1]);
+      captchas.push(aboveElementsArray[2]);
+
+      console.log(captchas);
+
+      function extractNumberFromString(str) {
+        const match = str.match(/\d+/);
+        return match ? match[0] : null;
+      }
+
+      const targetNumber1 = extractNumberFromString(targetNumber.textContent);
+
+      console.log(targetNumber1);
+
+      // Function to extract number from string
+      function extractNumberFromString(str) {
+        const match = str.match(/\d+/);
+        return match ? match[0] : null;
+      }
+
+      // Iterate through each captcha image
+      let newCaptchaCount = 0;
+      captchas.forEach((element, index) => {
+        const imageData = element.src.replace(
+          /^data:image\/(png|jpg|jpeg|gif);base64,/,
+          ""
+        );
+
+        // Assuming aboveElementsArray is defined and populated correctly
+        const aboveElementsArray = Array.from(
+          document.querySelectorAll(".your-selector")
+        ); // Replace '.your-selector' with your actual selector
+
+        // Call the TrueCaptcha API to get the result from the image
+        get_captcha(imageData, function (data) {
+          // Extract the result from TrueCaptcha response
+          const captchaResult = data.result;
+
+          // Compare the result from TrueCaptcha with the target number
+          if (captchaResult === targetNumber1) {
+            element.click();
+          } else {
+            // Handle incorrect captcha result
+          }
+
+          newCaptchaCount++;
+
+          // Check if all captchas have been processed
+          if (newCaptchaCount === captchas.length) {
+            // All captchas have been processed
+            console.log("all captchas are done");
+            //debugger;
+            $("#btnVerify").click();
+          }
+        });
+
+        // Add a red dot at the coordinates of the captcha element
+        const rect = element.getBoundingClientRect();
+        //addRedDotAtCoordinates(rect.left, rect.top);
+      });
+
+      function get_captcha(image_data, callback) {
+        // Remove the data URL prefix if present
+        const base64Image = image_data.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, "");
+
+        const params = {
+          image: base64Image
+        };
+
+        const url = "http://localhost:5000/ocr"; // Update this if your server is on a different port or IP
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(params)
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Assuming your server returns { result: "extracted_numbers" }
+            callback({ result: data.result });
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            callback({ error: 'Failed to process image' });
+          });
+      }
 
 
     }
-  
+
 
     /*
 
@@ -2523,8 +2534,6 @@ async function handleNewCaptchaLoginAsync() {
 
     */
 
-    
-    
 
 
 
@@ -2541,10 +2550,12 @@ async function handleNewCaptchaLoginAsync() {
 
 
 
-        
 
-    
-    
+
+
+
+
+
 
 
 
@@ -3081,6 +3092,15 @@ function createAddUserButton() {
   //document.body.appendChild(addUserButton);
 }
 
+function addInputToMenu(placeholder, onInput, id) {
+  let input = document.createElement('input');
+  input.type = 'number';
+  input.placeholder = placeholder;
+  input.id = id;
+  input.style.margin = '0 5px';
+  input.addEventListener('input', onInput);
+  menuElement.appendChild(input);
+}
 
 function addButtonToMenu(text, onClick, id) {
   let button = document.createElement('button');
@@ -3130,12 +3150,36 @@ function updateFeedbackMessage(message, type) {
   }
 }
 
+// Event handler to update localStorage with the delay time for proxy
+function updateProxyDelay(event) {
+  const delayTime = event.target.value;
+  localStorage.setItem('proxydelay', delayTime);
+}
+
+// Event handler to update localStorage with the speed time for category
+function updateCategorySpeed(event) {
+  const speedTime = event.target.value;
+  localStorage.setItem('categorySpeed', speedTime);
+}
+
 function manageClientButton() {
   // Define the URL you want to redirect to
   window.location.href = baseTarget + targetCounry + "/account/RegisterUser";
 
   // Redirect to the specified URL
   window.location.href = href;
+}
+
+// Function to toggle the proxy activation status and update localStorage and button text
+function toggleProxyStatus(btnId) {
+  let changeproxyActivated = localStorage.getItem('changeproxyactivated') === 'true';
+  // Toggle the status
+  changeproxyActivated = !changeproxyActivated;
+  // Update localStorage with the new state
+  localStorage.setItem('changeproxyactivated', changeproxyActivated.toString());
+  // Update button text based on the new state
+
+  document.getElementById(btnId).textContent = changeproxyActivated ? 'Change Proxy is ON' : 'Change Proxy is OFF';
 }
 
 function categorySwitcher(buttonId) {
@@ -3166,10 +3210,10 @@ function categorySwitcher(buttonId) {
 
 function captchaSwitcher(buttonId) {
   let selection = localStorage.getItem('local_captcha');
-  
+
   // Toggle the selection value between 'true' and 'false'
   selection = (selection === 'true') ? 'false' : 'true';
-  
+
   // Update the button text based on the new selection
   let switchPasswordButtonButton = document.getElementById(buttonId);
   if (selection === 'true') {
@@ -3187,10 +3231,10 @@ function captchaSwitcher(buttonId) {
 function passwordSwitcher(buttonId) {
   // Get the current selection from local storage, defaulting to 'false' if not set
   let selection = localStorage.getItem('passwordchanged') || 'false';
-  
+
   // Toggle the selection value between 'true' and 'false'
   selection = (selection === 'true') ? 'false' : 'true';
-  
+
   // Update the button text based on the new selection
   let switchPasswordButtonButton = document.getElementById(buttonId);
   if (selection === 'true') {
@@ -3250,11 +3294,11 @@ function get_captcha(image_data, callback) {
 }
 
 if (currentUrl.includes('GenerateCaptcha?data')) {
-  
+
   window.alert = function () {
     return true;
   };
-  
+
   // Wait for page to fully load before running CAPTCHA code
   window.addEventListener('load', () => {
     getCaptchaGridAndClick().then(count => {
@@ -3265,7 +3309,7 @@ if (currentUrl.includes('GenerateCaptcha?data')) {
     });
   });
 
-  
+
 }
 
 
@@ -3332,65 +3376,65 @@ function get_captcha_true(image_data, callback) {
 async function getCaptchaGridAndClick() {
   // Extract the captcha number to compare against
   const captchaNumber = $('.box-label')
-  .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
-  .first()
-  .text()
-  .replace(/\D+/, '');
-console.log("Expected Captcha Number:", captchaNumber);
+    .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
+    .first()
+    .text()
+    .replace(/\D+/, '');
+  console.log("Expected Captcha Number:", captchaNumber);
 
-// Get visible captcha images from the grid
-const grid = $(':has(> .captcha-img):visible').get()
-  .reduce((acc, cur) => {
-    (acc[Math.floor(cur.offsetTop)] ??= []).push(cur);
-    return acc;
-  }, [])
-  .flatMap(sortedByTop => {
-    const sortedByZIndex = sortedByTop.sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex);
-    const top3 = sortedByZIndex.slice(0, 3); // max cells
-    const sortedByLeft = top3.sort((a, b) => a.offsetLeft - b.offsetLeft);
-    return sortedByLeft;
-  })
-  .map(element => element.firstElementChild); // Get the first child which should be the image
+  // Get visible captcha images from the grid
+  const grid = $(':has(> .captcha-img):visible').get()
+    .reduce((acc, cur) => {
+      (acc[Math.floor(cur.offsetTop)] ??= []).push(cur);
+      return acc;
+    }, [])
+    .flatMap(sortedByTop => {
+      const sortedByZIndex = sortedByTop.sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex);
+      const top3 = sortedByZIndex.slice(0, 3); // max cells
+      const sortedByLeft = top3.sort((a, b) => a.offsetLeft - b.offsetLeft);
+      return sortedByLeft;
+    })
+    .map(element => element.firstElementChild); // Get the first child which should be the image
 
-// Log the images in the grid
-console.log("Captcha Images:", grid);
+  // Log the images in the grid
+  console.log("Captcha Images:", grid);
 
- // Process each image for captcha solving
- let clickedCount = 0;
+  // Process each image for captcha solving
+  let clickedCount = 0;
 
- const promises = grid.map((img) => {
-   return new Promise((resolve) => {
-     if (img) {
-       // Just take the src directly without canvas conversion
-       const imageData = img.src;
+  const promises = grid.map((img) => {
+    return new Promise((resolve) => {
+      if (img) {
+        // Just take the src directly without canvas conversion
+        const imageData = img.src;
 
-       // Dynamically choose between local or TrueCaptcha
-       get_captcha(imageData, (result) => {
-         if (result.error) {
-           console.error(result.error);
-           resolve(); // Resolve the promise even on error
-         } else {
-           console.log("Extracted Number:", result.result);
-           // Check if the extracted number matches the captcha number
-           if (result.result === captchaNumber) {
-             img.click(); // Click the image if it matches
-             console.log("Clicked Image:", img);
-             clickedCount++; // Increment the clicked count
-           }
-           resolve(); // Resolve the promise to continue to the next image
-         }
-       });
-     } else {
-       resolve(); // Resolve immediately if no img
-     }
-   });
- });
+        // Dynamically choose between local or TrueCaptcha
+        get_captcha(imageData, (result) => {
+          if (result.error) {
+            console.error(result.error);
+            resolve(); // Resolve the promise even on error
+          } else {
+            console.log("Extracted Number:", result.result);
+            // Check if the extracted number matches the captcha number
+            if (result.result === captchaNumber) {
+              img.click(); // Click the image if it matches
+              console.log("Clicked Image:", img);
+              clickedCount++; // Increment the clicked count
+            }
+            resolve(); // Resolve the promise to continue to the next image
+          }
+        });
+      } else {
+        resolve(); // Resolve immediately if no img
+      }
+    });
+  });
 
- // Wait for all captcha solving promises to complete
- await Promise.all(promises);
+  // Wait for all captcha solving promises to complete
+  await Promise.all(promises);
 
- // Return the number of captcha images clicked
- return clickedCount;
+  // Return the number of captcha images clicked
+  return clickedCount;
 }
 
 
@@ -3407,7 +3451,7 @@ async function fillNewUserDataFromLocalStorage() {
 
   profileData = JSON.parse(localStorage.getItem('profileData'));
 
-  if(!profileData)
+  if (!profileData)
     return;
 
   console.log('City:', profileData.app_city);
@@ -3603,7 +3647,7 @@ async function createAccountAutomaticAsync() {
             //document.getElementById("btnSubmit").click();
           }, timeOut);
         }
-        if (this.status === 200 && (this.responseURL.includes(registerSubmitfAction)||this.responseURL.includes(otpsenfAction))) {
+        if (this.status === 200 && (this.responseURL.includes(registerSubmitfAction) || this.responseURL.includes(otpsenfAction))) {
           console.log('submit sent OK 200');
 
           // Parse and handle the JSON response
@@ -3612,7 +3656,7 @@ async function createAccountAutomaticAsync() {
             console.log('Response JSON:', jsonResponse);
 
             // Check for Passport Number already exists error
-            if (jsonResponse.success === false ) {
+            if (jsonResponse.success === false) {
               if (jsonResponse.error && jsonResponse.error.includes('The passport number you entered is already exists')) {
                 console.log('Error: Passport Number already exists. Please register with another passport number.');
                 // Handle the specific error for passport number
@@ -3625,7 +3669,7 @@ async function createAccountAutomaticAsync() {
                 document.getElementById('Mobile').value = introduceHumanErrorMobileNumber(profileData.app_phoneNumber); // Assuming you have a function for this
                 document.getElementById('btnSubmit').click();
               }
-            } else if(jsonResponse.success === true && this.responseURL.includes(registerSubmitfAction)) {
+            } else if (jsonResponse.success === true && this.responseURL.includes(registerSubmitfAction)) {
               localStorage.setItem('passwordchanged', false);
               document.getElementById('contBtn').click();
             }
@@ -3898,27 +3942,27 @@ async function handleManageApplicantDetailAsync() {
   document.getElementById('PlaceOfBirth').value = profileData.app_placeOfBirth;
 
   let datePicker = $("#TravelDate").data("kendoDatePicker");
-      datePicker.value(new Date(new Date().setMonth(new Date().getMonth() + 3)));
-      datePicker.trigger("change");
+  datePicker.value(new Date(new Date().setMonth(new Date().getMonth() + 3)));
+  datePicker.trigger("change");
 
-  if(profileData.app_oldVisaNumber !==null && profileData.app_oldVisaNumber !==undefined &&profileData.app_oldVisaNumber !=="")   {
+  if (profileData.app_oldVisaNumber !== null && profileData.app_oldVisaNumber !== undefined && profileData.app_oldVisaNumber !== "") {
 
-    console.log("visa start date: ",profileData.app_visaStartDate);
+    console.log("visa start date: ", profileData.app_visaStartDate);
 
     document.getElementById('PreviousVisaNumber').value = profileData.app_oldVisaNumber;
 
     let datePicker2 = $("#PreviousVisaValidFrom").data("kendoDatePicker");
-      datePicker2.value(new Date(profileData.app_visaStartDate));
-      datePicker2.trigger("change");
+    datePicker2.value(new Date(profileData.app_visaStartDate));
+    datePicker2.trigger("change");
 
-      let datePicker3 = $("#PreviousVisaValidTo").data("kendoDatePicker");
-      datePicker3.value(new Date(profileData.app_visaEndDate));
-      datePicker3.trigger("change");
+    let datePicker3 = $("#PreviousVisaValidTo").data("kendoDatePicker");
+    datePicker3.value(new Date(profileData.app_visaEndDate));
+    datePicker3.trigger("change");
 
 
 
-      let oldVisaCountryHolder = await clickListHolder('Previous Visa Issued Country*');
-      await selectListFromHolder(oldVisaCountryHolder, profileData.app_OldeVisaCountry);
+    let oldVisaCountryHolder = await clickListHolder('Previous Visa Issued Country*');
+    await selectListFromHolder(oldVisaCountryHolder, profileData.app_OldeVisaCountry);
 
   }
 
@@ -3970,18 +4014,22 @@ profileData.app_visaType
 
 
 function sendProxyChangeRequest() {
-  let delay = 1000*3;
+  if (localStorage.getItem('changeproxyactivated') === 'true') {
+    let delayInSeconds = localStorage.getItem('proxydelay') || 3;
+    let delay = 1000 * delayInSeconds;
 
-  console.log("Detected restricted page (403 or 429). Requesting proxy change.");
+    console.log("Detected restricted page (403 or 429). Requesting proxy change.");
 
-  // Send a message to the content script to activate the next proxy
-  setTimeout(() => {
-    window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
-  }, delay);
-  
+    // Send a message to the content script to activate the next proxy
+    setTimeout(() => {
+      window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
+    }, delay);
+  }
+
+
 
   // Check for error codes in the title
-  
+
 }
 
 
