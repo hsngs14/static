@@ -1,6 +1,11 @@
 console.log("************************************************");
 localStorage.setItem("scriptVersion", "84");
 localStorage.setItem("selection", localStorage.getItem("selection") || "Normal");
+localStorage.setItem('callSpeed', localStorage.getItem('callSpeed') || 30);
+
+localStorage.setItem('proxydelay',localStorage.getItem('proxydelay')||3);
+localStorage.setItem('categorySpeed',localStorage.getItem('categorySpeed')||600);
+
 
 var cityOld = localStorage.getItem("city");
 if (cityOld === "alger") {
@@ -153,104 +158,314 @@ let notificationElement;
 let menuElement;
 
 function initializeHeaderComponents() {
-  // Select or create the header element
+  // Create or select header element
   let headerElement = document.querySelector('body > header');
-
   if (!headerElement) {
-    console.log("Header element not found. Creating a new header.");
     headerElement = document.createElement('header');
     document.body.insertBefore(headerElement, document.body.firstChild);
   }
 
-  // Create the container for both elements
+  // Main container
   const headerComponentsContainer = document.createElement('div');
-  headerComponentsContainer.style.width = '100%';
+  headerComponentsContainer.style.cssText = `
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  `;
 
-  // Create the notification area
+  // Notification element (clickable)
   notificationElement = document.createElement('div');
   notificationElement.id = 'user-notification-zone';
-  notificationElement.textContent = 'Welcome to our website!'; // Default notification
-  notificationElement.style.textAlign = 'center';
-  notificationElement.style.width = '100%';
-  notificationElement.style.padding = '10px 0';
-  notificationElement.style.backgroundColor = '#f0f0f0';
+  notificationElement.style.cssText = `
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #2563eb;
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    z-index: 1000;
+  `;
 
-  // Create the menu bar
+  // Hover effects
+  notificationElement.onmouseover = () => {
+    notificationElement.style.backgroundColor = '#1d4ed8';
+  };
+  notificationElement.onmouseout = () => {
+    notificationElement.style.backgroundColor = '#2563eb';
+  };
+
+  // Notification text container
+  const notificationText = document.createElement('div');
+  notificationText.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  `;
+
+  // Arrow indicator
+  const arrow = document.createElement('span');
+  arrow.innerHTML = '▼';
+  arrow.style.cssText = `
+    transition: transform 0.3s ease;
+    display: inline-block;
+    margin-left: 8px;
+  `;
+
+  // Menu container with wrapper for height calculation
+  const menuWrapper = document.createElement('div');
+  menuWrapper.style.cssText = `
+    width: 100%;
+    overflow: hidden;
+    transition: height 0.3s ease;
+  `;
+
   menuElement = document.createElement('div');
   menuElement.id = 'navigation-menu-strip';
-  // menuElement.textContent = 'Menu items will go here'; // Placeholder text
-  menuElement.style.textAlign = 'center';
-  menuElement.style.width = '100%';
-  menuElement.style.padding = '10px 0';
-  menuElement.style.backgroundColor = '#e0e0e0';
+  menuElement.style.cssText = `
+    width: 100%;
+    padding: 15px 20px;
+    background-color: white;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  `;
 
-  // Append notification area and menu bar to the container
+  // Wrap menu in the height-animated container
+  menuWrapper.appendChild(menuElement);
+
+  // Styles
+  const styles = document.createElement('style');
+  styles.textContent = `
+    #navigation-menu-strip button {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    #navigation-menu-strip button:hover {
+      background-color: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    #navigation-menu-strip input {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    #navigation-menu-strip input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    }
+
+    #navigation-menu-strip input::placeholder {
+      color: #94a3b8;
+    }
+
+    #profileDataInput {
+      width: 250px !important;
+      margin: 0 !important;
+    }
+
+    #feedbackMessage {
+      width: 100%;
+      text-align: center;
+      color: #64748b;
+      font-size: 14px;
+      margin-top: 12px;
+      padding: 8px;
+      background-color: #f8fafc;
+      border-radius: 6px;
+      display: none;
+    }
+
+    #feedbackMessage.visible {
+      display: block;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  `;
+
+  document.head.appendChild(styles);
+
+  // Dynamic height calculation and toggle functionality
+  let isCollapsed = localStorage.getItem('menuCollapsed') === 'true';
+
+  function updateMenuHeight() {
+    const height = menuElement.getBoundingClientRect().height;
+    menuWrapper.style.height = height + 'px';
+    console.log('Menu height updated:', height);
+  }
+
+  function collapseMenu() {
+    menuWrapper.style.height = '0';
+    arrow.style.transform = 'rotate(-90deg)';
+  }
+
+  function expandMenu() {
+    const height = menuElement.getBoundingClientRect().height;
+    menuWrapper.style.height = height + 'px';
+    arrow.style.transform = 'rotate(0deg)';
+  }
+
+  function updateMenuState() {
+    console.log('Updating menu state:', isCollapsed);
+    if (isCollapsed) {
+      collapseMenu();
+    } else {
+      expandMenu();
+    }
+  }
+
+  // Handle clicks on notification bar
+  notificationElement.onclick = () => {
+    console.log('Notification clicked');
+    isCollapsed = !isCollapsed;
+    localStorage.setItem('menuCollapsed', isCollapsed);
+    updateMenuState();
+  };
+
+  // Observe menu content changes
+  const observer = new MutationObserver(() => {
+    if (!isCollapsed) {
+      updateMenuHeight();
+    }
+  });
+
+  observer.observe(menuElement, {
+    childList: true,
+    subtree: true,
+    attributes: true
+  });
+
+  // Also update height on window resize
+  window.addEventListener('resize', () => {
+    if (!isCollapsed) {
+      updateMenuHeight();
+    }
+  });
+
+  // Initial setup
+  notificationText.textContent = "BruteForce V" + localStorage.getItem("scriptVersion");
+  notificationText.appendChild(arrow);
+  notificationElement.appendChild(notificationText);
   headerComponentsContainer.appendChild(notificationElement);
-  headerComponentsContainer.appendChild(menuElement);
-
-  // Insert the container as the first child of the header
+  headerComponentsContainer.appendChild(menuWrapper);
   headerElement.insertBefore(headerComponentsContainer, headerElement.firstChild);
 
+  // Initialize state
+  if (isCollapsed) {
+    setTimeout(collapseMenu, 0);
+  } else {
+    setTimeout(updateMenuHeight, 0);
+  }
+
+  // Menu helper functions
+  window.addButtonToMenu = function(text, onClick, id) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.onclick = onClick;
+    if (id) button.id = id;
+    menuElement.appendChild(button);
+    return button;
+  };
+
+  window.addInputToMenu = function(placeholder, onInput, id) {
+    const inputGroup = document.createElement('div');
+    inputGroup.className = 'input-group';
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = placeholder;
+    input.oninput = onInput;
+    if (id) input.id = id;
+    
+    inputGroup.appendChild(input);
+    menuElement.appendChild(inputGroup);
+    return input;
+  };
+
+  // Initialize menu items
+  const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
+  const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
+  addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle');
+  
+  addInputToMenu('proxy', updateProxyDelay, 'proxy-delay-input');
+  addInputToMenu('refresh', updateCalledarRefreshSpeed, 'callendar-delay-input');
+  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), "manageClientbtnId");
+  addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), "switchCategoryButtonId");
+  addInputToMenu('category', updateCategorySpeed, 'category-speed-input');
+  addButtonToMenu(localStorage.getItem('email') || "No user", () => aliasSwitcher('switchAliasButtonId'), "switchAliasButtonId");
+
+  let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha'));
+  if (useLocalCaptchaUI === null) {
+    useLocalCaptchaUI = true;
+    localStorage.setItem('local_captcha', JSON.stringify(true));
+  }
+  let useLocalCaptchaUIText = useLocalCaptchaUI ? "Local captcha" : "trueCaptcha";
+  addButtonToMenu(useLocalCaptchaUIText, () => captchaSwitcher('switchCaptchaButtonId'), "switchCaptchaButtonId");
+
+  let switchPasswordButtonName = "no password selected";
+  if (localStorage.getItem('passwordchanged') === 'false') {
+    switchPasswordButtonName = "temp password";
+  } else if (localStorage.getItem('passwordchanged') === 'true') {
+    switchPasswordButtonName = "regular password";
+  }
+  addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), "passwordSwitcherButtonId");
+
+  addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton');
+
+  const inputField = document.createElement('input');
+  inputField.id = 'profileDataInput';
+  inputField.placeholder = 'Paste JSON here...';
+  menuElement.appendChild(inputField);
+
+  feedbackElement = document.createElement('div');
+  feedbackElement.id = 'feedbackMessage';
+  menuElement.appendChild(feedbackElement);
+
+  addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton');
+
+  // load value from localstorage
+  document.getElementById('proxy-delay-input').value = localStorage.getItem('proxydelay');
+  document.getElementById('callendar-delay-input').value = localStorage.getItem('callSpeed');
+  document.getElementById('category-speed-input').value = localStorage.getItem('categorySpeed');
+
+
+  // Force a final height calculation after all elements are added
+  setTimeout(updateMenuHeight, 100);
 }
+
 
 
 if (isBlsWebSite) {
   // Call the function to create and append the button
   initializeHeaderComponents();
 
-
-
-
-  const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
-  const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
-  addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle');
-
-  addInputToMenu('Enter delay in seconds', updateProxyDelay, 'proxy-delay-input');
-
-  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), "manageClientbtnId");
-  addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), "switchCategoryButtonId");
-  addInputToMenu('Enter category speed in seconds', updateCategorySpeed, 'category-speed-input');
-  addButtonToMenu(localStorage.getItem('email') || "No user", () => aliasSwitcher('switchAliasButtonId'), "switchAliasButtonId");
-  let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha'));
-  if (useLocalCaptchaUI === null) {
-    useLocalCaptchaUI = true;
-    localStorage.setItem('local_captcha', JSON.stringify(true));
-  }
-  let useLocalCaptchaUIText = "trueCaptcha";
-  if (useLocalCaptchaUI) {
-    useLocalCaptchaUIText = "Local captcha";
-  }
-  addButtonToMenu(useLocalCaptchaUIText, () => captchaSwitcher('switchCaptchaButtonId'), "switchCaptchaButtonId");
-  let switchPasswordButtonName = "no password selected";
-  if (localStorage.getItem('passwordchanged') === 'false') {
-    switchPasswordButtonName = "temp passowrd";
-
-  } else if (localStorage.getItem('passwordchanged') === 'true') {
-    switchPasswordButtonName = "regular password";
-  }
-
-  addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), "passwordSwitcherButtonId");
-
-  // Add "Copy to Clipboard" button
-  addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton');
-
-  // Add small text input for JSON data and save button
-  const inputField = document.createElement('input');
-  inputField.id = 'profileDataInput';
-  inputField.placeholder = 'Paste JSON here...';
-  inputField.style.width = '250px';  // Smaller input box
-  inputField.style.margin = '5px';   // Add some margin for spacing
-  menuElement.appendChild(inputField);
-
-  // Add feedback area for user messages
-  feedbackElement = document.createElement('div');
-  feedbackElement.id = 'feedbackMessage';
-  feedbackElement.style.marginTop = '10px';  // Add space above feedback
-  feedbackElement.style.fontSize = '12px';   // Make it a bit smaller
-  menuElement.appendChild(feedbackElement);  // Append feedback element below the buttons
-
-  // Add "Save Pasted Data" button
-  addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton');
 
   notificationElement.textContent = "BruteForce V" + localStorage.getItem("scriptVersion");
   //createRefreshCategoryButton();
@@ -1690,7 +1905,7 @@ if (document.querySelector('body > main > section > div > div > h5')?.textConten
   setTimeout(() => {
     // Refresh the page
     location.reload();
-  }, settings.refreshCooldown * 1000); // Adjust the refresh cooldown as needed
+  }, localStorage.getItem('callSpeed') * 1000); // Adjust the refresh cooldown as needed
 }
 
 
@@ -1698,7 +1913,7 @@ if (document.querySelector('#div-main > div.col-12.alert.alert-danger')?.textCon
   setTimeout(() => {
     //document.querySelector('#div-main > div:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);
+  }, localStorage.getItem('callSpeed') * 1000);
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('You have not filled out and completed the applicant detail form for the selected location and visa type. Please complete the form before booking an appointment.')) {
   setTimeout(() => {
@@ -1710,41 +1925,41 @@ if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textCo
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('You have reached maximum number of requests from your network. Please try after sometime')) {//You have reached maximum number of requests from this account. Please try after sometime
   setTimeout(() => {
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 3 * 1000);//}, settings.refreshCooldown*1000);
+  }, localStorage.getItem('callSpeed') * 3 * 1000);//}, settings.refreshCooldown*1000);
 
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('You have reached the maximum number of individual appointments allowed for your registered account and/or network.')) {//You have reached maximum number of requests from this account. Please try after sometime
   setTimeout(() => {
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 3 * 1000);//}, settings.refreshCooldown*1000);
+  }, localStorage.getItem('callSpeed') * 3 * 1000);//}, settings.refreshCooldown*1000);
 
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('You have reached maximum number of requests from this account. Please try after sometime')) {//You have reached maximum number of requests from this account. Please try after sometime
   setTimeout(() => {
     //document.querySelector('#navbarCollapse2 > ul > li:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 3 * 1000);//}, settings.refreshCooldown*1000);
+  }, localStorage.getItem('callSpeed') * 3 * 1000);//}, settings.refreshCooldown*1000);
 
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('Invalid request parameter')) {//You have reached maximum number of requests from this account. Please try after sometime
   setTimeout(() => {
     //document.querySelector('#navbarCollapse2 > ul > li:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);//}, settings.refreshCooldown*1000);
+  }, localStorage.getItem('callSpeed') * 1000);//}, settings.refreshCooldown*1000);
 
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('Invalid appointment request flow')) {//You have reached maximum number of requests from this account. Please try after sometime
   setTimeout(() => {
     //document.querySelector('#navbarCollapse2 > ul > li:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);//}, settings.refreshCooldown*1000);
+  }, localStorage.getItem('callSpeed') * 1000);//}, settings.refreshCooldown*1000);
 
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim().includes('An error occured while processing your request. Please try again after sometime')) {//You have reached maximum number of requests from this account. Please try after sometime
   setTimeout(() => {
     //document.querySelector('#navbarCollapse2 > ul > li:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);//}, settings.refreshCooldown*1000);
+  }, localStorage.getItem('callSpeed') * 1000);//}, settings.refreshCooldown*1000);
 
 }
 if (currentUrl.includes("changepassword?alert=True")) {
@@ -1819,31 +2034,31 @@ if (document.querySelector('body > main > section > div > div > p')?.textContent
   setTimeout(() => {
     //document.querySelector('body > main > section > div > div > button').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);
+  }, localStorage.getItem('callSpeed') * 1000);
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim() === "The selected date and slot is invalid.") {
   setTimeout(() => {
     //document.querySelector('#div-main > div:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);
+  }, localStorage.getItem('callSpeed') * 1000);
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim() === "The appointment date and time you selected are already taken by other applicants. Please choose a different date and time.") {
   setTimeout(() => {
     //document.querySelector('#div-main > div:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);
+  }, localStorage.getItem('callSpeed') * 1000);
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim() === "The appointment request is expired") {
   setTimeout(() => {
     //document.querySelector('#div-main > div:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);
+  }, localStorage.getItem('callSpeed') * 1000);
 }
 if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textContent.trim() === "Liveness test is expired") {
   setTimeout(() => {
     //document.querySelector('#div-main > div:nth-child(2) > a').click();
     Array.from(document.querySelectorAll('#navbarCollapse2 > ul > li:nth-child(2) > a')).find(el => el.textContent.trim() === 'Book New Appointment')?.click();
-  }, settings.refreshCooldown * 1000);
+  }, localStorage.getItem('callSpeed') * 1000);
 }
 
 if (currentUrl.includes('/appointment/DataProtectionEmailSent')) {
@@ -3180,6 +3395,13 @@ function updateProxyDelay(event) {
 function updateCategorySpeed(event) {
   const speedTime = event.target.value;
   localStorage.setItem('categorySpeed', speedTime);
+}
+
+// event handler for calledar refresh
+function updateCalledarRefreshSpeed(event){
+  const callSpeed = event.target.value;
+  localStorage.setItem('callSpeed', callSpeed);
+
 }
 
 function manageClientButton() {
