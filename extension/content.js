@@ -944,5 +944,3 @@ function HidePhotoLoaderFG() {
     loader.style.display = 'none';
   }
 }
-
-profileData
