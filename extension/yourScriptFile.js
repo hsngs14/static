@@ -4261,11 +4261,14 @@ function sendProxyChangeRequest() {
     let delayInSeconds = localStorage.getItem('proxydelay') || 3;
     let delay = 1000 * delayInSeconds;
 
+
+
     console.log("Detected restricted page (403 or 429). Requesting proxy change.");
 
     // Send a message to the content script to activate the next proxy
     setTimeout(() => {
       window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
+      window.location.href = baseTarget;
     }, delay);
   }
 
