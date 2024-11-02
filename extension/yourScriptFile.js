@@ -202,15 +202,10 @@ function initializeHeaderComponents() {
     notificationElement.style.backgroundColor = '#2563eb';
   };
 
-  // Notification text container
+  // Notification text container with arrow
   const notificationText = document.createElement('div');
-  notificationText.style.cssText = `
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  `;
-
-  // Arrow indicator
+  notificationText.style.cssText = `display: flex; align-items: center; gap: 8px;`;
+  
   const arrow = document.createElement('span');
   arrow.innerHTML = '▼';
   arrow.style.cssText = `
@@ -219,33 +214,44 @@ function initializeHeaderComponents() {
     margin-left: 8px;
   `;
 
-  // Menu container with wrapper for height calculation
+  // Menu wrapper for height animation
   const menuWrapper = document.createElement('div');
   menuWrapper.style.cssText = `
     width: 100%;
     overflow: hidden;
     transition: height 0.3s ease;
+    background-color: white;
   `;
 
   menuElement = document.createElement('div');
   menuElement.id = 'navigation-menu-strip';
   menuElement.style.cssText = `
     width: 100%;
-    padding: 15px 20px;
+    padding: 20px;
     background-color: white;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    align-items: start;
   `;
-
-  // Wrap menu in the height-animated container
-  menuWrapper.appendChild(menuElement);
 
   // Styles
   const styles = document.createElement('style');
   styles.textContent = `
+    .menu-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .menu-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     #navigation-menu-strip button {
       background-color: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -257,6 +263,7 @@ function initializeHeaderComponents() {
       cursor: pointer;
       transition: all 0.2s ease;
       white-space: nowrap;
+      width: 100%;
     }
 
     #navigation-menu-strip button:hover {
@@ -271,6 +278,7 @@ function initializeHeaderComponents() {
       font-size: 14px;
       outline: none;
       transition: border-color 0.2s ease;
+      width: 100%;
     }
 
     #navigation-menu-strip input:focus {
@@ -282,17 +290,11 @@ function initializeHeaderComponents() {
       color: #94a3b8;
     }
 
-    #profileDataInput {
-      width: 250px !important;
-      margin: 0 !important;
-    }
-
     #feedbackMessage {
-      width: 100%;
+      grid-column: 1 / -1;
       text-align: center;
       color: #64748b;
       font-size: 14px;
-      margin-top: 12px;
       padding: 8px;
       background-color: #f8fafc;
       border-radius: 6px;
@@ -302,23 +304,134 @@ function initializeHeaderComponents() {
     #feedbackMessage.visible {
       display: block;
     }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
   `;
 
   document.head.appendChild(styles);
 
-  // Dynamic height calculation and toggle functionality
+  // Menu helper functions
+  window.addButtonToMenu = function(text, onClick, id, groupId = null) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.onclick = onClick;
+    if (id) button.id = id;
+
+    if (groupId) {
+      let group = document.getElementById(groupId);
+      if (!group) {
+        group = document.createElement('div');
+        group.id = groupId;
+        group.className = 'menu-group';
+        menuElement.appendChild(group);
+      }
+      group.appendChild(button);
+    } else {
+      menuElement.appendChild(button);
+    }
+    return button;
+  };
+
+  window.addInputToMenu = function(label, placeholder, onInput, id, groupId = null) {
+    const group = document.createElement('div');
+    group.className = 'menu-group';
+    
+    const labelElement = document.createElement('label');
+    labelElement.textContent = label;
+    labelElement.htmlFor = id;
+    
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = placeholder;
+    input.oninput = onInput;
+    if (id) input.id = id;
+    
+    group.appendChild(labelElement);
+    group.appendChild(input);
+    
+    if (groupId) {
+      let parentGroup = document.getElementById(groupId);
+      if (!parentGroup) {
+        parentGroup = document.createElement('div');
+        parentGroup.id = groupId;
+        parentGroup.className = 'menu-group';
+        menuElement.appendChild(parentGroup);
+      }
+      parentGroup.appendChild(group);
+    } else {
+      menuElement.appendChild(group);
+    }
+    
+    return input;
+  };
+
+  // Initialize menu items (Create all groups first)
+  const proxyGroup = document.createElement('div');
+  proxyGroup.id = 'proxy-controls';
+  proxyGroup.className = 'menu-group';
+  menuElement.appendChild(proxyGroup);
+
+  const speedGroup = document.createElement('div');
+  speedGroup.id = 'speed-controls';
+  speedGroup.className = 'menu-group';
+  menuElement.appendChild(speedGroup);
+
+  const userGroup = document.createElement('div');
+  userGroup.id = 'user-controls';
+  userGroup.className = 'menu-group';
+  menuElement.appendChild(userGroup);
+
+  const settingsGroup = document.createElement('div');
+  settingsGroup.id = 'settings-controls';
+  settingsGroup.className = 'menu-group';
+  menuElement.appendChild(settingsGroup);
+
+  const profileGroup = document.createElement('div');
+  profileGroup.id = 'profile-controls';
+  profileGroup.className = 'menu-group';
+  menuElement.appendChild(profileGroup);
+
+  // Add elements to groups
+  const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
+  const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
+  addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle', 'proxy-controls');
+  addInputToMenu('Proxy Delay', 'Enter delay in ms', updateProxyDelay, 'proxy-delay-input', 'proxy-controls');
+  
+  addInputToMenu('Refresh Speed', 'Enter refresh speed', updateCalledarRefreshSpeed, 'callendar-delay-input', 'speed-controls');
+  addInputToMenu('Category Speed', 'Enter category speed', updateCategorySpeed, 'category-speed-input', 'speed-controls');
+  
+  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), 'manageClientbtnId', 'user-controls');
+  addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), 'switchCategoryButtonId', 'user-controls');
+  addButtonToMenu(localStorage.getItem('email') || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
+
+  let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha')) ?? true;
+  localStorage.setItem('local_captcha', JSON.stringify(useLocalCaptchaUI));
+  let useLocalCaptchaUIText = useLocalCaptchaUI ? "Local captcha" : "trueCaptcha";
+  addButtonToMenu(useLocalCaptchaUIText, () => captchaSwitcher('switchCaptchaButtonId'), 'switchCaptchaButtonId', 'settings-controls');
+
+  let switchPasswordButtonName = localStorage.getItem('passwordchanged') === 'true' ? "regular password" : 
+                               localStorage.getItem('passwordchanged') === 'false' ? "temp password" : 
+                               "no password selected";
+  addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), 'passwordSwitcherButtonId', 'settings-controls');
+
+  addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton', 'profile-controls');
+  addInputToMenu('Profile Data', 'Paste JSON here...', null, 'profileDataInput', 'profile-controls');
+  addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton', 'profile-controls');
+
+  // Feedback message
+  feedbackElement = document.createElement('div');
+  feedbackElement.id = 'feedbackMessage';
+  menuElement.appendChild(feedbackElement);
+
+  // Menu collapse/expand functionality
   let isCollapsed = localStorage.getItem('menuCollapsed') === 'true';
 
+  // Put menu element in wrapper before any height calculations
+  menuWrapper.appendChild(menuElement);
+
   function updateMenuHeight() {
-    const height = menuElement.getBoundingClientRect().height;
-    menuWrapper.style.height = height + 'px';
-    console.log('Menu height updated:', height);
+    if (!isCollapsed) {
+      const height = menuElement.getBoundingClientRect().height;
+      menuWrapper.style.height = `${height}px`;
+    }
   }
 
   function collapseMenu() {
@@ -328,12 +441,13 @@ function initializeHeaderComponents() {
 
   function expandMenu() {
     const height = menuElement.getBoundingClientRect().height;
-    menuWrapper.style.height = height + 'px';
+    menuWrapper.style.height = `${height}px`;
     arrow.style.transform = 'rotate(0deg)';
   }
 
-  function updateMenuState() {
-    console.log('Updating menu state:', isCollapsed);
+  function toggleMenu() {
+    isCollapsed = !isCollapsed;
+    localStorage.setItem('menuCollapsed', isCollapsed);
     if (isCollapsed) {
       collapseMenu();
     } else {
@@ -341,19 +455,11 @@ function initializeHeaderComponents() {
     }
   }
 
-  // Handle clicks on notification bar
-  notificationElement.onclick = () => {
-    console.log('Notification clicked');
-    isCollapsed = !isCollapsed;
-    localStorage.setItem('menuCollapsed', isCollapsed);
-    updateMenuState();
-  };
+  notificationElement.onclick = toggleMenu;
 
-  // Observe menu content changes
+  // Observer for content changes
   const observer = new MutationObserver(() => {
-    if (!isCollapsed) {
-      updateMenuHeight();
-    }
+    updateMenuHeight();
   });
 
   observer.observe(menuElement, {
@@ -362,14 +468,10 @@ function initializeHeaderComponents() {
     attributes: true
   });
 
-  // Also update height on window resize
-  window.addEventListener('resize', () => {
-    if (!isCollapsed) {
-      updateMenuHeight();
-    }
-  });
+  // Window resize handler
+  window.addEventListener('resize', updateMenuHeight);
 
-  // Initial setup
+  // Initial setup and state
   notificationText.textContent = "BruteForce V" + localStorage.getItem("scriptVersion");
   notificationText.appendChild(arrow);
   notificationElement.appendChild(notificationText);
@@ -377,87 +479,19 @@ function initializeHeaderComponents() {
   headerComponentsContainer.appendChild(menuWrapper);
   headerElement.insertBefore(headerComponentsContainer, headerElement.firstChild);
 
-  // Initialize state
-  if (isCollapsed) {
-    setTimeout(collapseMenu, 0);
-  } else {
-    setTimeout(updateMenuHeight, 0);
-  }
-
-  // Menu helper functions
-  window.addButtonToMenu = function(text, onClick, id) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    if (id) button.id = id;
-    menuElement.appendChild(button);
-    return button;
-  };
-
-  window.addInputToMenu = function(placeholder, onInput, id) {
-    const inputGroup = document.createElement('div');
-    inputGroup.className = 'input-group';
-    
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = placeholder;
-    input.oninput = onInput;
-    if (id) input.id = id;
-    
-    inputGroup.appendChild(input);
-    menuElement.appendChild(inputGroup);
-    return input;
-  };
-
-  // Initialize menu items
-  const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
-  const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
-  addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle');
-  
-  addInputToMenu('proxy', updateProxyDelay, 'proxy-delay-input');
-  addInputToMenu('refresh', updateCalledarRefreshSpeed, 'callendar-delay-input');
-  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), "manageClientbtnId");
-  addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), "switchCategoryButtonId");
-  addInputToMenu('category', updateCategorySpeed, 'category-speed-input');
-  addButtonToMenu(localStorage.getItem('email') || "No user", () => aliasSwitcher('switchAliasButtonId'), "switchAliasButtonId");
-
-  let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha'));
-  if (useLocalCaptchaUI === null) {
-    useLocalCaptchaUI = true;
-    localStorage.setItem('local_captcha', JSON.stringify(true));
-  }
-  let useLocalCaptchaUIText = useLocalCaptchaUI ? "Local captcha" : "trueCaptcha";
-  addButtonToMenu(useLocalCaptchaUIText, () => captchaSwitcher('switchCaptchaButtonId'), "switchCaptchaButtonId");
-
-  let switchPasswordButtonName = "no password selected";
-  if (localStorage.getItem('passwordchanged') === 'false') {
-    switchPasswordButtonName = "temp password";
-  } else if (localStorage.getItem('passwordchanged') === 'true') {
-    switchPasswordButtonName = "regular password";
-  }
-  addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), "passwordSwitcherButtonId");
-
-  addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton');
-
-  const inputField = document.createElement('input');
-  inputField.id = 'profileDataInput';
-  inputField.placeholder = 'Paste JSON here...';
-  menuElement.appendChild(inputField);
-
-  feedbackElement = document.createElement('div');
-  feedbackElement.id = 'feedbackMessage';
-  menuElement.appendChild(feedbackElement);
-
-  addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton');
-
-  // load value from localstorage
+  // Load saved values
   document.getElementById('proxy-delay-input').value = localStorage.getItem('proxydelay');
   document.getElementById('callendar-delay-input').value = localStorage.getItem('callSpeed');
   document.getElementById('category-speed-input').value = localStorage.getItem('categorySpeed');
 
-
-  // Force a final height calculation after all elements are added
-  setTimeout(updateMenuHeight, 100);
+  // Initialize menu state
+  setTimeout(() => {
+    if (isCollapsed) {
+      collapseMenu();
+    } else {
+      expandMenu();
+    }
+  }, 0);
 }
 
 
@@ -573,10 +607,10 @@ for (var i = 0; i < elements.length; i++) {
     elements[i].textContent.includes("Backend service does not exist") ||
     elements[i].textContent.includes("502 Bad Gateway") ||
     elements[i].textContent.includes("500 Internal Server Error") ||
-    elements[i].textContent.includes("403 Forbidden") ||
+    //elements[i].textContent.includes("403 Forbidden") ||
     elements[i].textContent.includes("504 Gateway Timeout") ||
-    elements[i].textContent.includes("429 Too Many Requests") ||
-    elements[i].textContent.includes("403 Forbidden") ||
+   // elements[i].textContent.includes("429 Too Many Requests") ||
+    //elements[i].textContent.includes("403 Forbidden") ||
     elements[i].textContent.includes("This page isn’t working") ||
     elements[i].textContent.includes("This site can’t be reached") ||
     elements[i].textContent.includes("Application Temporarily Unavailable")
@@ -1337,7 +1371,8 @@ function randomDelay() {
   return new Promise(resolve => setTimeout(resolve, randomTime));
 }
 */
-function randomDelay(from = localStorage.getItem('categorySpeed') || 1, to) {
+let catsp = localStorage.getItem('categorySpeed') || 1;
+function randomDelay(from = catsp, to) {
   if (to === undefined) {
     to = from * 1.2;  // Set 'to' to 20% more than 'from' if not provided
   }
@@ -1461,7 +1496,23 @@ async function getLabelFor(labelString) {
     return null; // or throw an error, depending on how you want to handle this case
   }
 }
+function addAliseIfnotAdded(){
+  profileData = JSON.parse(localStorage.getItem('profileData'));
+
+  let currentEmail = profileData.app_email || '';
+
+  let aliases = JSON.parse(localStorage.getItem('aliases')) || [];
+  if (!aliases.includes(currentEmail)) {
+    aliases.push(currentEmail);
+    localStorage.setItem('aliases', JSON.stringify(aliases));
+    //alert(`Email "${currentEmail}" added to aliases successfully!`);
+  } else {
+    //alert(`Email "${currentEmail}" is already in aliases.`);
+  }
+}
 async function selectCategories() {
+  
+  addAliseIfnotAdded();
   let profileData = JSON.parse(localStorage.getItem('profileData'));
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
 
@@ -3491,7 +3542,9 @@ function passwordSwitcher(buttonId) {
 
 
 function aliasSwitcher(buttonId) {
-  let currentEmail = localStorage.getItem('email') || '';
+  profileData = JSON.parse(localStorage.getItem('profileData'));
+
+  let currentEmail = profileData.app_email || '';
 
   let aliases = JSON.parse(localStorage.getItem('aliases')) || [];
   if (!aliases.includes(currentEmail)) {
@@ -3511,7 +3564,9 @@ function aliasSwitcher(buttonId) {
     let nextIndex = (currentIndex + 1) % aliases.length;
     let nextEmail = aliases[nextIndex];
 
-    localStorage.setItem('email', nextEmail);
+    //localStorage.setItem('email', nextEmail);
+    profileData.app_email = nextEmail;
+    localStorage.setItem('profileData', JSON.stringify(profileData));
 
     // Refresh the page
     location.reload();
