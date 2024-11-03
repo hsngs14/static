@@ -390,6 +390,13 @@ function initializeHeaderComponents() {
   menuElement.appendChild(profileGroup);
 
   profileData = JSON.parse(localStorage.getItem('profileData'));
+  let em ;
+  if(!profileData){
+    em = "";
+  }
+  else{
+    em = profileData.app_email;
+  }
 
   // Add elements to groups
   const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
@@ -402,7 +409,7 @@ function initializeHeaderComponents() {
   
   addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), 'manageClientbtnId', 'user-controls');
   addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), 'switchCategoryButtonId', 'user-controls');
-  addButtonToMenu(profileData.app_email || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
+  addButtonToMenu(em || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
 
   let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha')) ?? true;
   localStorage.setItem('local_captcha', JSON.stringify(useLocalCaptchaUI));
@@ -1807,6 +1814,8 @@ if (visaTypeSelectionElement) {
 }
 if (currentUrl.includes("Appointment/ApplicantSelection")) {
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
+
+  playEpicAirRaidSiren();
 
   const otpButton_xyz1 = document.createElement('button');
   otpButton_xyz1.innerText = 'Get Otp'; // Button text
@@ -4314,6 +4323,47 @@ profileData.app_visaStartDate
 profileData.app_visaSubType
 profileData.app_visaType
 */
+
+function playEpicAirRaidSiren() {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    oscillator.type = 'sine'; // Sine wave for smooth wail
+    const gainNode = audioContext.createGain();
+    gainNode.gain.value = 0.5; // Adjust volume if needed
+
+    // Connect nodes for added depth
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    let frequency = 150; // Start frequency for the low rumble
+    const maxFrequency = 1000; // High pitch to make it epic
+    const minFrequency = 150; // Low pitch for base effect
+    let isIncreasing = true; // To track the direction of the pitch change
+
+    // Gradual frequency modulation to create epic siren effect
+    const interval = setInterval(() => {
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+        if (isIncreasing) {
+            frequency += 8; // Increase frequency gradually
+            if (frequency >= maxFrequency) isIncreasing = false; // Start descending
+        } else {
+            frequency -= 8; // Decrease frequency gradually
+            if (frequency <= minFrequency) isIncreasing = true; // Start ascending again
+        }
+    }, 40); // Faster interval for a more intense wail
+
+    oscillator.start();
+
+    // Stop the siren after a set period
+    setTimeout(() => {
+        clearInterval(interval);
+        oscillator.stop();
+    }, 15000); // Duration of the epic siren in milliseconds
+}
+
+// Play the epic air raid siren sound
+playEpicAirRaidSiren();
 
 
 function sendProxyChangeRequest() {
