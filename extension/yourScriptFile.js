@@ -389,6 +389,8 @@ function initializeHeaderComponents() {
   profileGroup.className = 'menu-group';
   menuElement.appendChild(profileGroup);
 
+  profileData = JSON.parse(localStorage.getItem('profileData'));
+
   // Add elements to groups
   const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
   const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
@@ -400,7 +402,7 @@ function initializeHeaderComponents() {
   
   addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), 'manageClientbtnId', 'user-controls');
   addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), 'switchCategoryButtonId', 'user-controls');
-  addButtonToMenu(localStorage.getItem('email') || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
+  addButtonToMenu(profileData.app_email || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
 
   let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha')) ?? true;
   localStorage.setItem('local_captcha', JSON.stringify(useLocalCaptchaUI));
@@ -2457,7 +2459,7 @@ if (
       //window.location.href = baseTarget + targetCounry + "/account/RegisterUser";
     } else {
       // If email exists, set it to the email field
-      emailField.value = localStorage.getItem("email");
+      emailField.value = profileData.app_email;//localStorage.getItem("email");
       document.getElementById("btnVerify").click();
     }
 
@@ -3297,8 +3299,9 @@ function createRefreshCategoryButton() {
 // Function to create and handle the user switch button
 function createUserSwitchButton() {
   // Retrieve the aliases array from local storage, or initialize with an empty array if it doesn't exist
+  profileData = JSON.parse(localStorage.getItem('profileData'));
   let aliases = JSON.parse(localStorage.getItem('aliases')) || [];
-  let currentEmail = localStorage.getItem('email') || '';
+  let currentEmail = profileData.app_email;//localStorage.getItem('email') || '';
 
   // Create a new button element
   const userSwitchButton = document.createElement('button');
@@ -3359,7 +3362,9 @@ function createAddUserButton() {
 
   // Function to add a new user
   addUserButton.onclick = function () {
-    const email = localStorage.getItem('email');
+    profileData = JSON.parse(localStorage.getItem('profileData'));
+
+    const email = profileData.app_email;//localStorage.getItem('email');
     if (email) {
       let aliases = JSON.parse(localStorage.getItem('aliases')) || [];
       if (!aliases.includes(email)) {
