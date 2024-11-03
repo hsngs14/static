@@ -4363,7 +4363,7 @@ function playEpicAirRaidSiren() {
 }
 
 // Play the epic air raid siren sound
-playEpicAirRaidSiren();
+//playEpicAirRaidSiren();
 
 
 function sendProxyChangeRequest() {
