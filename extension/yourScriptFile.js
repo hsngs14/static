@@ -1526,7 +1526,7 @@ async function selectCategories() {
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
 
   await randomDelay();
-  if (localStorage.getItem("individuals") > 1) {
+  if (parseInt(profileData.app_numberOfFamilyMembers, 10)+1 > 1) {
     Array.from(document.getElementsByTagName('label'))
       .find(label => label.textContent.trim() === 'Appointment For*' && label.offsetParent !== null)
       ?.nextElementSibling.getElementsByTagName('div')[1]
@@ -1537,7 +1537,8 @@ async function selectCategories() {
     document.querySelector('#familyDisclaimer > div > div > div.modal-footer > button.btn.btn-success').click();
 
     let membersHolder = await clickListHolder('Number Of Members*');
-    await selectListFromHolder(membersHolder, `${localStorage.getItem("individuals")} Members`);
+    familycount = parseInt(profileData.app_numberOfFamilyMembers, 10) +1;
+    await selectListFromHolder(membersHolder, `${familycount} Members`);//await selectListFromHolder(membersHolder, `${localStorage.getItem("individuals")} Members`);
 
 
   }
@@ -1855,12 +1856,13 @@ if (currentUrl.includes("Appointment/ApplicantSelection")) {
   document.body.appendChild(otpButton_xyz1);
 
   let photoID = JSON.parse(localStorage.getItem('profileData') || '{}').app_profilePicId;
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
 
   if (photoID) {
     $("#uploadfile-1-preview").attr("src", targetCounry + "/query/getfile?fileid=" + photoID);
     $("#ApplicantPhotoId").val(photoID);
   }
-  if (localStorage.getItem("individuals") > 1) {
+  if (  parseInt(profileData.app_numberOfFamilyMembers, 10)+1 > 1) {
     document.querySelectorAll('[id^="app-"]').forEach(element => element.click());
   } else {
     document.querySelector('.rdo-applicant[id^="rdo-"]').click();
@@ -3138,8 +3140,9 @@ async function getPasswordAsync() {
 
 //acceptData async from gmail
 async function acceptDataAsync() {
+  let profileData = JSON.parse(localStorage.getItem('profileData'));
   localStorage.setItem('passwordchanged', true);
-  const aliasEmail = localStorage.getItem("email");//"b.oudjelthiaabdelkader0101@gmail.com";
+  const aliasEmail = profileData.app_email;//localStorage.getItem("email");//"b.oudjelthiaabdelkader0101@gmail.com";
   const appPassword = localStorage.getItem("emailpassword");;//"aoeq rqpd slih mssn"; // Provided app password
   const subjectFilter = "BLS - Data Protection Information"; // Subject filter
   const fromFilter = "Info@blsinternational.com"; // From filter
