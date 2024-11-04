@@ -205,36 +205,17 @@ if (currentUrl.includes('account/RegisterUser')) {
   const FORM_MARGIN_FG = '20px';
   const TARGET_SELECTOR_FG = '#div-main > div';
 
-  const COUNTRIES_FG = ["Algeria", "Spain", "Afghanistan", "Albania", "American Samoa", "Andorra", "Angola", "Anguila"];
+  const COUNTRIES_FG = getCountriesFG();//["Algeria", "Spain", "Afghanistan", "Albania", "American Samoa", "Andorra", "Angola", "Anguila"];
   const GENDERS_FG = ["Male", "Female", "Other"];
   const MARITAL_STATUSES_FG = ["Single", "Married", "Divorced", "Widowed"];
   const PURPOSES_OF_JOURNEY_FG = ["Tourism", "Business", "Study", "Work", "Transit", "Others"];
   const RELATIONSHIPS_FG = ["Wife", "Sister", "Brother", "Husband", "Daughter", "Son", "Mother"];
   const PASSPORT_TYPES_FG = ["Ordinary Passport", "Diplomatic Passport"];
-  const VISA_TYPES_FG = ["Schengen Visa", "National Visa",
-    "First application / première demande",
-    "Visa renewal / renouvellement de visa",
-    "Schengen Visa - First Demand",
-    "Schengen Visa - Previous Visa Holder",
-    "Schengen visa ( Estonia)",
+  const { cities, visaTypes, visaSubtypes } = getConfigForCountry(currentUrl);
 
-  ];
-  const VISA_SUBTYPES_FG = ["Schengen Visa", "Student Visa", "Family Visit", "Business",
-    "Oran 1",
-    "Oran 2",
-    "Oran 3",
-    "Oran 4",
-    "ALG 1",
-    "ALG 2",
-    "ALG 3",
-    "ALG 4",
-    "Algiers 1",
-    "Algiers 2",
-    "Algiers 3",
-    "Algiers 4",
-
-  ];
-  const CITIES_FG = ["Algiers", "Oran"];
+  const CITIES_FG = cities;
+  const VISA_TYPES_FG = visaTypes;
+  const VISA_SUBTYPES_FG = visaSubtypes;
 
   const FORM_FIELDS_FG = [
     { label: "Surname", id: "app_surname", type: "text" },
@@ -944,3 +925,63 @@ function HidePhotoLoaderFG() {
     loader.style.display = 'none';
   }
 }
+
+
+function getConfigForCountry(currentUrl) {
+  let cities = [];
+  let visaTypes = [];
+  let visaSubtypes = [];
+
+  if (currentUrl.includes("algeria.blsspainglobal.com")) {
+    cities = ["Oran", "Algiers"];
+    visaTypes = [
+      "Schengen Visa",
+      "National Visa",
+      "First application / première demande",
+      "Visa renewal / renouvellement de visa",
+      "Schengen Visa - First Demand",
+      "Schengen Visa - Previous Visa Holder",
+      "Schengen visa (Estonia)"
+    ];
+    visaSubtypes = [
+      "Schengen Visa",
+      "Student Visa",
+      "Family Visit",
+      "Business",
+      "Oran 1",
+      "Oran 2",
+      "Oran 3",
+      "Oran 4",
+      "ALG 1",
+      "ALG 2",
+      "ALG 3",
+      "ALG 4"
+    ];
+  } else if (currentUrl.includes("https://www.blsspainmorocco.net")) {
+    cities = ["Tetouan", "Nador", "Agadir", "Rabat", "Tangier", "Casablanca"];
+    visaTypes = [
+      "Schengen Visa",
+      "National Visa",
+      "Casa 1",
+      "Casa 2",
+      "Casa 3"
+    ];
+    visaSubtypes = [
+      "Schengen Visa",
+      "Student Visa",
+      "Family Visit",
+      "Business",
+      "Casa 1",
+      "Casa 2",
+      "Casa 3"
+    ];
+  }
+
+  return { cities, visaTypes, visaSubtypes };
+}
+
+function getCountriesFG() {
+  return ["Algeria", "Spain", "Afghanistan", "Albania", "American Samoa", "Andorra", "Angola", "Anguilla"];
+}
+
+
