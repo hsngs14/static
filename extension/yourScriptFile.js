@@ -157,350 +157,571 @@ panellll.id = "panel";
 let notificationElement;
 let menuElement;
 
-function initializeHeaderComponents() {
-  // Create or select header element
-  let headerElement = document.querySelector('body > header');
-  if (!headerElement) {
-    headerElement = document.createElement('header');
-    document.body.insertBefore(headerElement, document.body.firstChild);
-  }
+  // Define available captcha options
+  const CAPTCHA_OPTIONS = [
+    { id: 'local', name: 'Local captcha' },
+    { id: 'true', name: 'TrueCaptcha' },
+    { id: 'nocaptcha', name: 'NoCaptchaAI' }
+  ];
 
-  // Main container
-  const headerComponentsContainer = document.createElement('div');
-  headerComponentsContainer.style.cssText = `
-    width: 100%;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  `;
-
-  // Notification element (clickable)
-  notificationElement = document.createElement('div');
-  notificationElement.id = 'user-notification-zone';
-  notificationElement.style.cssText = `
-    width: 100%;
-    padding: 12px 20px;
-    background-color: #2563eb;
-    color: white;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    transition: background-color 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    position: relative;
-    z-index: 1000;
-  `;
-
-  // Hover effects
-  notificationElement.onmouseover = () => {
-    notificationElement.style.backgroundColor = '#1d4ed8';
-  };
-  notificationElement.onmouseout = () => {
-    notificationElement.style.backgroundColor = '#2563eb';
-  };
-
-  // Notification text container with arrow
-  const notificationText = document.createElement('div');
-  notificationText.style.cssText = `display: flex; align-items: center; gap: 8px;`;
+  function initializeHeaderComponents() {
+    // Create or select header element
+    let headerElement = document.querySelector('body > header');
+    if (!headerElement) {
+      headerElement = document.createElement('header');
+      document.body.insertBefore(headerElement, document.body.firstChild);
+    }
   
-  const arrow = document.createElement('span');
-  arrow.innerHTML = '▼';
-  arrow.style.cssText = `
-    transition: transform 0.3s ease;
-    display: inline-block;
-    margin-left: 8px;
-  `;
-
-  // Menu wrapper for height animation
-  const menuWrapper = document.createElement('div');
-  menuWrapper.style.cssText = `
-    width: 100%;
-    overflow: hidden;
-    transition: height 0.3s ease;
-    background-color: white;
-  `;
-
-  menuElement = document.createElement('div');
-  menuElement.id = 'navigation-menu-strip';
-  menuElement.style.cssText = `
-    width: 100%;
-    padding: 20px;
-    background-color: white;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
-    align-items: start;
-  `;
-
-  // Styles
-  const styles = document.createElement('style');
-  styles.textContent = `
-    .menu-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .menu-group label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    #navigation-menu-strip button {
-      background-color: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 8px 16px;
-      font-size: 14px;
+    // Main container
+    const headerComponentsContainer = document.createElement('div');
+    headerComponentsContainer.style.cssText = `
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    `;
+  
+    // Notification element (clickable)
+    notificationElement = document.createElement('div');
+    notificationElement.id = 'user-notification-zone';
+    notificationElement.style.cssText = `
+      width: 100%;
+      padding: 12px 20px;
+      background-color: #2563eb;
+      color: white;
       font-weight: 500;
-      color: #1e293b;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      width: 100%;
-    }
-
-    #navigation-menu-strip button:hover {
-      background-color: #f1f5f9;
-      border-color: #cbd5e1;
-    }
-
-    #navigation-menu-strip input {
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s ease;
-      width: 100%;
-    }
-
-    #navigation-menu-strip input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-    }
-
-    #navigation-menu-strip input::placeholder {
-      color: #94a3b8;
-    }
-
-    #feedbackMessage {
-      grid-column: 1 / -1;
       text-align: center;
-      color: #64748b;
-      font-size: 14px;
-      padding: 8px;
-      background-color: #f8fafc;
-      border-radius: 6px;
-      display: none;
-    }
-
-    #feedbackMessage.visible {
-      display: block;
-    }
-  `;
-
-  document.head.appendChild(styles);
-
-  // Menu helper functions
-  window.addButtonToMenu = function(text, onClick, id, groupId = null) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.onclick = onClick;
-    if (id) button.id = id;
-
-    if (groupId) {
-      let group = document.getElementById(groupId);
-      if (!group) {
-        group = document.createElement('div');
-        group.id = groupId;
-        group.className = 'menu-group';
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1000;
+    `;
+  
+    // Hover effects
+    notificationElement.onmouseover = () => {
+      notificationElement.style.backgroundColor = '#1d4ed8';
+    };
+    notificationElement.onmouseout = () => {
+      notificationElement.style.backgroundColor = '#2563eb';
+    };
+  
+    // Notification text container with arrow
+    const notificationText = document.createElement('div');
+    notificationText.style.cssText = `display: flex; align-items: center; gap: 8px;`;
+    
+    const arrow = document.createElement('span');
+    arrow.innerHTML = '▼';
+    arrow.style.cssText = `
+      transition: transform 0.3s ease;
+      display: inline-block;
+      margin-left: 8px;
+    `;
+  
+    // Menu wrapper for height animation
+    const menuWrapper = document.createElement('div');
+    menuWrapper.style.cssText = `
+      width: 100%;
+      overflow: hidden;
+      transition: height 0.3s ease;
+      background-color: white;
+    `;
+  
+    menuElement = document.createElement('div');
+    menuElement.id = 'navigation-menu-strip';
+    menuElement.style.cssText = `
+      width: 100%;
+      padding: 20px;
+      background-color: white;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      align-items: start;
+    `;
+  
+    // Styles
+    const styles = document.createElement('style');
+    styles.textContent = `
+      .menu-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+  
+      .menu-group label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+  
+      #navigation-menu-strip button {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+        width: 100%;
+      }
+  
+      #navigation-menu-strip button:hover {
+        background-color: #f1f5f9;
+        border-color: #cbd5e1;
+      }
+  
+      #navigation-menu-strip input {
+        padding: 8px 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s ease;
+        width: 100%;
+      }
+  
+      #navigation-menu-strip input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+  
+      #navigation-menu-strip input::placeholder {
+        color: #94a3b8;
+      }
+  
+      #feedbackMessage {
+        grid-column: 1 / -1;
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+        padding: 8px;
+        background-color: #f8fafc;
+        border-radius: 6px;
+        display: none;
+      }
+  
+      #feedbackMessage.visible {
+        display: block;
+      }
+    `;
+  
+    document.head.appendChild(styles);
+  
+    // Menu helper functions
+    window.addButtonToMenu = function(text, onClick, id, groupId = null) {
+      const button = document.createElement('button');
+      button.textContent = text;
+      button.onclick = onClick;
+      if (id) button.id = id;
+  
+      if (groupId) {
+        let group = document.getElementById(groupId);
+        if (!group) {
+          group = document.createElement('div');
+          group.id = groupId;
+          group.className = 'menu-group';
+          menuElement.appendChild(group);
+        }
+        group.appendChild(button);
+      } else {
+        menuElement.appendChild(button);
+      }
+      return button;
+    };
+  
+    window.addInputToMenu = function(label, placeholder, onInput, id, groupId = null) {
+      const group = document.createElement('div');
+      group.className = 'menu-group';
+      
+      const labelElement = document.createElement('label');
+      labelElement.textContent = label;
+      labelElement.htmlFor = id;
+      
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = placeholder;
+      input.oninput = onInput;
+      if (id) input.id = id;
+      
+      group.appendChild(labelElement);
+      group.appendChild(input);
+      
+      if (groupId) {
+        let parentGroup = document.getElementById(groupId);
+        if (!parentGroup) {
+          parentGroup = document.createElement('div');
+          parentGroup.id = groupId;
+          parentGroup.className = 'menu-group';
+          menuElement.appendChild(parentGroup);
+        }
+        parentGroup.appendChild(group);
+      } else {
         menuElement.appendChild(group);
       }
-      group.appendChild(button);
-    } else {
-      menuElement.appendChild(button);
+      
+      return input;
+    };
+  
+    // Initialize menu items (Create all groups first)
+    const proxyGroup = document.createElement('div');
+    proxyGroup.id = 'proxy-controls';
+    proxyGroup.className = 'menu-group';
+    menuElement.appendChild(proxyGroup);
+  
+    const speedGroup = document.createElement('div');
+    speedGroup.id = 'speed-controls';
+    speedGroup.className = 'menu-group';
+    menuElement.appendChild(speedGroup);
+  
+    const userGroup = document.createElement('div');
+    userGroup.id = 'user-controls';
+    userGroup.className = 'menu-group';
+    menuElement.appendChild(userGroup);
+  
+    const settingsGroup = document.createElement('div');
+    settingsGroup.id = 'settings-controls';
+    settingsGroup.className = 'menu-group';
+    menuElement.appendChild(settingsGroup);
+  
+    const profileGroup = document.createElement('div');
+    profileGroup.id = 'profile-controls';
+    profileGroup.className = 'menu-group';
+    menuElement.appendChild(profileGroup);
+  
+    profileData = JSON.parse(localStorage.getItem('profileData'));
+    let em = profileData ? profileData.app_email : "";
+  
+    // Add elements to groups
+    const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
+    const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
+    addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle', 'proxy-controls');
+    addInputToMenu('Proxy Delay', 'Enter delay in ms', updateProxyDelay, 'proxy-delay-input', 'proxy-controls');
+    
+    addInputToMenu('Refresh Speed', 'Enter refresh speed', updateCalledarRefreshSpeed, 'callendar-delay-input', 'speed-controls');
+    addInputToMenu('Category Speed', 'Enter category speed', updateCategorySpeed, 'category-speed-input', 'speed-controls');
+    
+    addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), 'manageClientbtnId', 'user-controls');
+    addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), 'switchCategoryButtonId', 'user-controls');
+    addButtonToMenu(em || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
+  
+    // Add captcha buttons with settings
+    function addCaptchaButtons() {
+      // Initialize captcha settings first
+      const showCaptchaSettings = initializeCaptchaSettings();
+  
+      // Find current captcha option
+      let currentOption = CAPTCHA_OPTIONS.find(opt => opt.id === useLocalCaptchaUI) ?? CAPTCHA_OPTIONS[0];
+  
+      // Add captcha switch button
+      addButtonToMenu(currentOption.name, () => captchaSwitcher('switchCaptchaButtonId'), 'switchCaptchaButtonId', 'settings-controls');
+  
+      // Add settings button
+      addButtonToMenu('captcha setting ⚙️', showCaptchaSettings, 'captchaSettingsButtonId', 'settings-controls');
     }
-    return button;
-  };
-
-  window.addInputToMenu = function(label, placeholder, onInput, id, groupId = null) {
-    const group = document.createElement('div');
-    group.className = 'menu-group';
-    
-    const labelElement = document.createElement('label');
-    labelElement.textContent = label;
-    labelElement.htmlFor = id;
-    
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.placeholder = placeholder;
-    input.oninput = onInput;
-    if (id) input.id = id;
-    
-    group.appendChild(labelElement);
-    group.appendChild(input);
-    
-    if (groupId) {
-      let parentGroup = document.getElementById(groupId);
-      if (!parentGroup) {
-        parentGroup = document.createElement('div');
-        parentGroup.id = groupId;
-        parentGroup.className = 'menu-group';
-        menuElement.appendChild(parentGroup);
+  
+    // Initialize captcha type and add buttons
+    let useLocalCaptchaUI = JSON.parse(localStorage.getItem('captcha_type')) ?? 'local';
+    localStorage.setItem('captcha_type', JSON.stringify(useLocalCaptchaUI));
+    addCaptchaButtons();
+  
+    let switchPasswordButtonName = localStorage.getItem('passwordchanged') === 'true' ? "regular password" : 
+                                 localStorage.getItem('passwordchanged') === 'false' ? "temp password" : 
+                                 "no password selected";
+    addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), 'passwordSwitcherButtonId', 'settings-controls');
+  
+    addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton', 'profile-controls');
+    addInputToMenu('Profile Data', 'Paste JSON here...', null, 'profileDataInput', 'profile-controls');
+    addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton', 'profile-controls');
+  
+    // Feedback message
+    feedbackElement = document.createElement('div');
+    feedbackElement.id = 'feedbackMessage';
+    menuElement.appendChild(feedbackElement);
+  
+    // Menu collapse/expand functionality
+    let isCollapsed = localStorage.getItem('menuCollapsed') === 'true';
+  
+    // Put menu element in wrapper before any height calculations
+    menuWrapper.appendChild(menuElement);
+  
+    function updateMenuHeight() {
+      if (!isCollapsed) {
+        const height = menuElement.getBoundingClientRect().height;
+        menuWrapper.style.height = `${height}px`;
       }
-      parentGroup.appendChild(group);
-    } else {
-      menuElement.appendChild(group);
     }
-    
-    return input;
-  };
-
-  // Initialize menu items (Create all groups first)
-  const proxyGroup = document.createElement('div');
-  proxyGroup.id = 'proxy-controls';
-  proxyGroup.className = 'menu-group';
-  menuElement.appendChild(proxyGroup);
-
-  const speedGroup = document.createElement('div');
-  speedGroup.id = 'speed-controls';
-  speedGroup.className = 'menu-group';
-  menuElement.appendChild(speedGroup);
-
-  const userGroup = document.createElement('div');
-  userGroup.id = 'user-controls';
-  userGroup.className = 'menu-group';
-  menuElement.appendChild(userGroup);
-
-  const settingsGroup = document.createElement('div');
-  settingsGroup.id = 'settings-controls';
-  settingsGroup.className = 'menu-group';
-  menuElement.appendChild(settingsGroup);
-
-  const profileGroup = document.createElement('div');
-  profileGroup.id = 'profile-controls';
-  profileGroup.className = 'menu-group';
-  menuElement.appendChild(profileGroup);
-
-  profileData = JSON.parse(localStorage.getItem('profileData'));
-  let em ;
-  if(!profileData){
-    em = "";
-  }
-  else{
-    em = profileData.app_email;
-  }
-
-  // Add elements to groups
-  const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
-  const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
-  addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle', 'proxy-controls');
-  addInputToMenu('Proxy Delay', 'Enter delay in ms', updateProxyDelay, 'proxy-delay-input', 'proxy-controls');
   
-  addInputToMenu('Refresh Speed', 'Enter refresh speed', updateCalledarRefreshSpeed, 'callendar-delay-input', 'speed-controls');
-  addInputToMenu('Category Speed', 'Enter category speed', updateCategorySpeed, 'category-speed-input', 'speed-controls');
+    function collapseMenu() {
+      menuWrapper.style.height = '0';
+      arrow.style.transform = 'rotate(-90deg)';
+    }
   
-  addButtonToMenu('Manage Client', () => manageClientButton('manageClientbtnId'), 'manageClientbtnId', 'user-controls');
-  addButtonToMenu(localStorage.getItem('selection'), () => categorySwitcher('switchCategoryButtonId'), 'switchCategoryButtonId', 'user-controls');
-  addButtonToMenu(em || "No user", () => aliasSwitcher('switchAliasButtonId'), 'switchAliasButtonId', 'user-controls');
-
-  let useLocalCaptchaUI = JSON.parse(localStorage.getItem('local_captcha')) ?? true;
-  localStorage.setItem('local_captcha', JSON.stringify(useLocalCaptchaUI));
-  let useLocalCaptchaUIText = useLocalCaptchaUI ? "Local captcha" : "trueCaptcha";
-  addButtonToMenu(useLocalCaptchaUIText, () => captchaSwitcher('switchCaptchaButtonId'), 'switchCaptchaButtonId', 'settings-controls');
-
-  let switchPasswordButtonName = localStorage.getItem('passwordchanged') === 'true' ? "regular password" : 
-                               localStorage.getItem('passwordchanged') === 'false' ? "temp password" : 
-                               "no password selected";
-  addButtonToMenu(switchPasswordButtonName, () => passwordSwitcher('passwordSwitcherButtonId'), 'passwordSwitcherButtonId', 'settings-controls');
-
-  addButtonToMenu('Copy Profile Data', copyProfileDataToClipboard, 'copyProfileDataButton', 'profile-controls');
-  addInputToMenu('Profile Data', 'Paste JSON here...', null, 'profileDataInput', 'profile-controls');
-  addButtonToMenu('Save Pasted Data', saveProfileDataFromInput, 'saveProfileDataButton', 'profile-controls');
-
-  // Feedback message
-  feedbackElement = document.createElement('div');
-  feedbackElement.id = 'feedbackMessage';
-  menuElement.appendChild(feedbackElement);
-
-  // Menu collapse/expand functionality
-  let isCollapsed = localStorage.getItem('menuCollapsed') === 'true';
-
-  // Put menu element in wrapper before any height calculations
-  menuWrapper.appendChild(menuElement);
-
-  function updateMenuHeight() {
-    if (!isCollapsed) {
+    function expandMenu() {
       const height = menuElement.getBoundingClientRect().height;
       menuWrapper.style.height = `${height}px`;
+      arrow.style.transform = 'rotate(0deg)';
     }
-  }
-
-  function collapseMenu() {
-    menuWrapper.style.height = '0';
-    arrow.style.transform = 'rotate(-90deg)';
-  }
-
-  function expandMenu() {
-    const height = menuElement.getBoundingClientRect().height;
-    menuWrapper.style.height = `${height}px`;
-    arrow.style.transform = 'rotate(0deg)';
-  }
-
-  function toggleMenu() {
-    isCollapsed = !isCollapsed;
-    localStorage.setItem('menuCollapsed', isCollapsed);
-    if (isCollapsed) {
-      collapseMenu();
-    } else {
-      expandMenu();
+  
+    function toggleMenu() {
+      isCollapsed = !isCollapsed;
+      localStorage.setItem('menuCollapsed', isCollapsed);
+      if (isCollapsed) {
+        collapseMenu();
+      } else {
+        expandMenu();
+      }
     }
+  
+    notificationElement.onclick = toggleMenu;
+  
+    // Observer for content changes
+    const observer = new MutationObserver(() => {
+      updateMenuHeight();
+    });
+  
+    observer.observe(menuElement, {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  
+    // Window resize handler
+    window.addEventListener('resize', updateMenuHeight);
+  
+    // Initial setup and state
+    notificationText.textContent = "BruteForce V" + localStorage.getItem("scriptVersion");
+    notificationText.appendChild(arrow);
+    notificationElement.appendChild(notificationText);
+    headerComponentsContainer.appendChild(notificationElement);
+    headerComponentsContainer.appendChild(menuWrapper);
+    headerElement.insertBefore(headerComponentsContainer, headerElement.firstChild);
+  
+    // Load saved values
+    document.getElementById('proxy-delay-input').value = localStorage.getItem('proxydelay');
+    document.getElementById('callendar-delay-input').value = localStorage.getItem('callSpeed');
+    document.getElementById('category-speed-input').value = localStorage.getItem('categorySpeed');
+  
+    // Initialize menu state
+    setTimeout(() => {
+      if (isCollapsed) {
+        collapseMenu();
+      } else {
+        expandMenu();
+      }
+    }, 0);
   }
 
-  notificationElement.onclick = toggleMenu;
 
-  // Observer for content changes
-  const observer = new MutationObserver(() => {
-    updateMenuHeight();
-  });
 
-  observer.observe(menuElement, {
-    childList: true,
-    subtree: true,
-    attributes: true
-  });
+function addCaptchaButtons() {
+  // Initialize captcha settings first
+  const showCaptchaSettings = initializeCaptchaSettings();
 
-  // Window resize handler
-  window.addEventListener('resize', updateMenuHeight);
+  // Find current captcha option
+  let currentOption = CAPTCHA_OPTIONS.find(opt => opt.id === useLocalCaptchaUI) ?? CAPTCHA_OPTIONS[0];
 
-  // Initial setup and state
-  notificationText.textContent = "BruteForce V" + localStorage.getItem("scriptVersion");
-  notificationText.appendChild(arrow);
-  notificationElement.appendChild(notificationText);
-  headerComponentsContainer.appendChild(notificationElement);
-  headerComponentsContainer.appendChild(menuWrapper);
-  headerElement.insertBefore(headerComponentsContainer, headerElement.firstChild);
+  // Add captcha switch button
+  addButtonToMenu(currentOption.name, () => captchaSwitcher('switchCaptchaButtonId'), 'switchCaptchaButtonId', 'settings-controls');
 
-  // Load saved values
-  document.getElementById('proxy-delay-input').value = localStorage.getItem('proxydelay');
-  document.getElementById('callendar-delay-input').value = localStorage.getItem('callSpeed');
-  document.getElementById('category-speed-input').value = localStorage.getItem('categorySpeed');
+  // Add settings button
+  addButtonToMenu('⚙️', showCaptchaSettings, 'captchaSettingsButtonId', 'settings-controls');
+}
 
-  // Initialize menu state
-  setTimeout(() => {
-    if (isCollapsed) {
-      collapseMenu();
-    } else {
-      expandMenu();
-    }
-  }, 0);
+function initializeCaptchaSettings() {
+  // Add styles for the modal
+  const modalStyles = document.createElement('style');
+  modalStyles.textContent = `
+      .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+      }
+
+      .modal-content {
+          background: white;
+          padding: 24px;
+          border-radius: 8px;
+          width: 90%;
+          max-width: 500px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+      }
+
+      .modal-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1e293b;
+      }
+
+      .modal-close {
+          background: none;
+          border: none;
+          font-size: 20px;
+          cursor: pointer;
+          color: #64748b;
+      }
+
+      .settings-form {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+      }
+
+      .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+      }
+
+      .form-group label {
+          font-size: 14px;
+          font-weight: 500;
+          color: #475569;
+      }
+
+      .form-group input {
+          padding: 8px 12px;
+          border: 1px solid #e2e8f0;
+          border-radius: 6px;
+          font-size: 14px;
+      }
+
+      .modal-footer {
+          margin-top: 24px;
+          display: flex;
+          justify-content: flex-end;
+          gap: 12px;
+      }
+
+      .modal-footer button {
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+      }
+
+      .save-button {
+          background-color: #2563eb;
+          color: white;
+          border: none;
+      }
+
+      .save-button:hover {
+          background-color: #1d4ed8;
+      }
+
+      .cancel-button {
+          background-color: #f1f5f9;
+          color: #475569;
+          border: 1px solid #e2e8f0;
+      }
+
+      .cancel-button:hover {
+          background-color: #e2e8f0;
+      }
+  `;
+  document.head.appendChild(modalStyles);
+
+  function showCaptchaSettings() {
+      const existingModal = document.getElementById('captchaSettingsModal');
+      if (existingModal) {
+          existingModal.remove();
+      }
+
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.id = 'captchaSettingsModal';
+      
+      modal.innerHTML = `
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h2 class="modal-title">Captcha Settings</h2>
+                  <button class="modal-close">&times;</button>
+              </div>
+              <form class="settings-form">
+                  <div class="form-group">
+                      <label for="truecaptcha-user">TrueCaptcha Username</label>
+                      <input type="text" id="truecaptcha-user" placeholder="Enter TrueCaptcha username">
+                  </div>
+                  <div class="form-group">
+                      <label for="truecaptcha-key">TrueCaptcha API Key</label>
+                      <input type="password" id="truecaptcha-key" placeholder="Enter TrueCaptcha API key">
+                  </div>
+                  <div class="form-group">
+                      <label for="nocaptchaai-key">NoCaptchaAI API Key</label>
+                      <input type="password" id="nocaptchaai-key" placeholder="Enter NoCaptchaAI API key">
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="cancel-button">Cancel</button>
+                      <button type="submit" class="save-button">Save Settings</button>
+                  </div>
+              </form>
+          </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      // Load saved values
+      const truecaptchaUser = localStorage.getItem('truecaptcha_user') || '';
+      const truecaptchaKey = localStorage.getItem('truecaptcha_key') || '';
+      const nocaptchaaiKey = localStorage.getItem('nocaptchaai_key') || '';
+
+      modal.querySelector('#truecaptcha-user').value = truecaptchaUser;
+      modal.querySelector('#truecaptcha-key').value = truecaptchaKey;
+      modal.querySelector('#nocaptchaai-key').value = nocaptchaaiKey;
+
+      // Handle close button
+      modal.querySelector('.modal-close').onclick = () => modal.remove();
+      
+      // Handle cancel button
+      modal.querySelector('.cancel-button').onclick = () => modal.remove();
+
+      // Handle form submission
+      modal.querySelector('form').onsubmit = (e) => {
+          e.preventDefault();
+          
+          const truecaptchaUser = modal.querySelector('#truecaptcha-user').value;
+          const truecaptchaKey = modal.querySelector('#truecaptcha-key').value;
+          const nocaptchaaiKey = modal.querySelector('#nocaptchaai-key').value;
+
+          localStorage.setItem('truecaptcha_user', truecaptchaUser);
+          localStorage.setItem('truecaptcha_key', truecaptchaKey);
+          localStorage.setItem('nocaptchaai_key', nocaptchaaiKey);
+
+          modal.remove();
+      };
+
+      // Close on overlay click
+      modal.onclick = (e) => {
+          if (e.target === modal) {
+              modal.remove();
+          }
+      };
+  }
+
+  return showCaptchaSettings;
 }
 
 
@@ -3519,23 +3740,27 @@ function categorySwitcher(buttonId) {
 }
 
 function captchaSwitcher(buttonId) {
-  let selection = localStorage.getItem('local_captcha');
-
-  // Toggle the selection value between 'true' and 'false'
-  selection = (selection === 'true') ? 'false' : 'true';
-
-  // Update the button text based on the new selection
-  let switchPasswordButtonButton = document.getElementById(buttonId);
-  if (selection === 'true') {
-    switchPasswordButtonButton.innerText = "local captcha";
-  } else {
-    switchPasswordButtonButton.innerText = "Truecaptcha";
+  // Get current selection from localStorage
+  let currentType = JSON.parse(localStorage.getItem('captcha_type'));
+  
+  // Find current index in options array
+  let currentIndex = CAPTCHA_OPTIONS.findIndex(opt => opt.id === currentType);
+  
+  // Get next option (cycle back to start if at end)
+  let nextIndex = (currentIndex + 1) % CAPTCHA_OPTIONS.length;
+  let nextOption = CAPTCHA_OPTIONS[nextIndex];
+  
+  // Update button text
+  let switchButton = document.getElementById(buttonId);
+  if (switchButton) {
+      switchButton.innerText = nextOption.name;
   }
-
-  // Save the new selection to local storage
-  localStorage.setItem('local_captcha', selection);
-
-
+  
+  // Save new selection to localStorage
+  localStorage.setItem('captcha_type', JSON.stringify(nextOption.id));
+  
+  // Return the new selection (in case needed for other operations)
+  return nextOption.id;
 }
 
 function passwordSwitcher(buttonId) {
@@ -3595,15 +3820,36 @@ function aliasSwitcher(buttonId) {
 
 
 
-let useLocalCaptcha = JSON.parse(localStorage.getItem('local_captcha'));
-// Function to dynamically choose between local captcha or TrueCaptcha
+// Get the current captcha type from localStorage
+function getCurrentCaptchaType() {
+  return JSON.parse(localStorage.getItem('captcha_type')) ?? 'local';
+}
+
+// Function to dynamically choose between different captcha services
 function get_captcha(image_data, callback) {
-  if (useLocalCaptcha) {
-    // Use local captcha
-    get_captcha_local(image_data, callback);
-  } else {
-    // Use TrueCaptcha API
-    get_captcha_true(image_data, callback);
+  const captchaType = getCurrentCaptchaType();
+  
+  switch (captchaType) {
+      case 'local':
+          // Use local captcha
+          get_captcha_local(image_data, callback);
+          break;
+          
+      case 'true':
+          // Use TrueCaptcha API
+          get_captcha_true(image_data, callback);
+          break;
+          
+      case 'nocaptcha':
+          // Use NoCaptchaAI
+          get_captcha_nocaptchaai(image_data, callback);
+          break;
+          
+      default:
+          // Fallback to local captcha if unknown type
+          console.warn(`Unknown captcha type: ${captchaType}, falling back to local captcha`);
+          get_captcha_local(image_data, callback);
+          break;
   }
 }
 
@@ -3660,9 +3906,10 @@ function get_captcha_local(image_data, callback) {
 // TrueCaptcha API processing function
 function get_captcha_true(image_data, callback) {
   // Prepare the data for the TrueCaptcha API request
+
   const params = {
-    userid: settings.captchaID,
-    apikey: settings.captchaAPI,
+    userid: localStorage.getItem('truecaptcha_user'),
+    apikey: localStorage.getItem('truecaptcha_key'),
     data: image_data.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, ""), // Remove base64 prefix
   };
 
@@ -3683,6 +3930,51 @@ function get_captcha_true(image_data, callback) {
     .catch((error) => {
       console.error('Error:', error);
       callback({ error: 'Failed to process image' });
+    });
+}
+function get_captcha_nocaptchaai(image_data, callback) {
+  // Prepare the data for the NoCaptchaAI API request
+  const params = {
+    method: "ocr",
+    id: "morocco",
+    image: image_data.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, ""), // Remove base64 prefix
+  };
+
+  const url = "https://pro.nocaptchaai.com/solve";
+  
+  // Make the API request to NoCaptchaAI
+  fetch(url, {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': localStorage.getItem('nocaptchaai_key'), // Assume nocaptchaAPI key is stored in settings
+    },
+    body: JSON.stringify(params),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.status === "solved" && data.solution) {
+        // Format the result to match the expected structure
+        callback({
+          result: data.solution, // This is what your code checks against captchaNumber
+          status: "success",
+          error: null
+        });
+      } else {
+        callback({
+          result: null,
+          status: "error",
+          error: "Failed to solve captcha"
+        });
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      callback({
+        result: null,
+        status: "error",
+        error: 'Failed to process image'
+      });
     });
 }
 
