@@ -948,6 +948,7 @@ function getConfigForCountry(currentUrl) {
       "Student Visa",
       "Family Visit",
       "Business",
+      "Schengen visa (Estonia)",
       "Oran 1",
       "Oran 2",
       "Oran 3",
@@ -964,7 +965,9 @@ function getConfigForCountry(currentUrl) {
       "National Visa",
       "Casa 1",
       "Casa 2",
-      "Casa 3"
+      "Casa 3",
+      "Family Reunification Visa",
+      "Work Visa",
     ];
     visaSubtypes = [
       "Schengen Visa",
@@ -981,7 +984,7 @@ function getConfigForCountry(currentUrl) {
 }
 
 function getCountriesFG() {
-  return ["Algeria", "Spain", "Afghanistan", "Albania", "American Samoa", "Andorra", "Angola", "Anguilla"];
+  return ["Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra	", "Angola	", "Anguila	", "Antigua and Barbuda	", "Argentina	", "Armenia	", "Aruba	", "Australia	", "Austria	", "Azerbaijan	", "Bahamas, The", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium	", "Belgium-Luxembourg	", "Belize	", "Benin	", "Bermuda	", "Bhutan	", "Bolivia	", "Bosnia and Herzegovina	", "Botswana	", "Brazil	", "British Indian Ocean Ter.", "British Virgin Islands		", "Brunei	", "Bulgaria	", "Burkina Faso	", "Burundi	", "Cambodia	", "Cameroon	", "Canada	", "Cape Verde	", "Cayman Islands	", "Central African Republic	", "Chad	", "Chile	", "China	", "Christmas Island	", "Cocos (Keeling) Islands	", "Colombia	", "Comoros	", "Congo, Dem. Rep.", "Congo, Rep.	", "Cook Islands	", "Costa Rica	", "Cote d'Ivoire	", "Croatia	", "Cuba	", "Cyprus	", "Czech Republic	", "Czechoslovakia	", "Denmark	", "Djibouti	", "Dominica	", "Dominican Republic	", "East Timor	", "Ecuador	", "Egypt, Arab Rep.	", "El Salvador	", "Equatorial Guinea	", "Eritrea	`", "Estonia	", "Ethiopia (excludes Eritrea)	", "Ethiopia (includes Eritrea)	", "European Union	", "Faeroe Islands	", "Falkland Island	", "Fiji	", "Finland	", "Fm Panama Cz	", "Fm Rhod Nyas	", "Fm Tanganyik	", "Fm Vietnam Dr	", "Fm Vietnam Rp	", "Fm Zanz-Pemb	", "Fr. So. Ant. Tr	", "France	", "Free Zones	", "French Guiana	", "French Polynesia	", "Gabon	", "Gambia, The	", "Gaza Strip	", "Georgia	", "German Democratic Republic	", "Germany	", "Ghana	", "Gibraltar	", "Greece	", "Greenland	", "Grenada	", "Guadeloupe	", "Guam	", "Guatemala	", "Guinea	", "Guinea-Bissau	", "Guyana	", "Haiti	", "Holy See	", "Honduras		", "Hong Kong, China	", "Hungary	", "Iceland	", "India	", "Indonesia	", "Iran, Islamic Rep.	", "Iraq	", "Ireland	", "Israel	", "Italy", "Jamaica	", "Japan	", "Jhonston Island	", "Jordan	", "Kazakhstan	", "Kenya	", "Kiribati	", "Korea, Dem. Rep.	", "Korea, Rep.	", "Kuwait", "Kyrgyz Republic	", "Lao PDR	", "Latvia	", "Lebanon			", "Lesotho	", "Liberia	", "Libya	", "Liechtenstein	", "Lithuania	", "Luxembourg	", "Macao	", "Macedonia, FYR	", "Madagascar	", "Malawi	", "Malaysia	", "Maldives	", "Mali	", "Malta	", "Marshall Islands	", "Martinique	", "Mauritania	", "Mauritius	", "Mexico			", "Micronesia, Fed. Sts.	", "Midway Islands	", "Moldova	", "Monaco			", "Mongolia	", "Morocco", "Mozambique	", "Myanmar	", "Namibia	", "Nauru	", "Nepal	", "Netherlands	", "Netherlands Antilles			", "Neutral Zone	", "New Caledonia	", "New Zealand	", "Nicaragua	", "Niger	", "Nigeria	", "Niue	", "Norfolk Island	", "Northern Mariana Islands	", "Norway	", "Oman	", "Pacific Islands	", "Pakistan	", "Palau	", "Panama	", "Papua New Guinea	", "Paraguay	", "Pen Malaysia		", "Peru	", "Philippines", "Pitcairn	", "Poland	", "Portugal	", "Puerto Rico	", "Qatar	", "Reunion	", "Romania	", "Russian Federation	", "Rwanda	", "Ryukyu Is	", "Sabah	", "Saint Helena	", "Saint Kitts-Nevis-Anguilla-Aru	", "Saint Pierre and Miquelon	", "Samoa	", "San Marino	", "Sao Tome and Principe	", "Sarawak	", "Saudi Arabia	", "Senegal	", "Seychelles	", "Sierra Leone	", "SIKKIM	", "Singapore	", "Slovak Republic	", "Slovenia	", "Solomon Islands	", "Somalia	", "South Africa	", "Soviet Union	", "Spain", "Special Categories	", "Sri Lanka	", "St. Kitts and Nevis	", "St. Lucia	", "St. Vincent and the Grenadines	", "Sudan	", "Suriname	", "Svalbard and Jan Mayen Is	", "Swaziland	", "Sweden	", "Switzerland	", "Syrian Arab Republic	", "Taiwan	", "Tajikistan	", "Tanzania	", "Thailand	", "Togo	", "Tokelau	", "Tonga	", "Trinidad and Tobago	", "Tunisia	", "Turkey	", "Turkmenistan	", "Turks and Caicos Isl.	", "Tuvalu	", "Uganda	", "Ukraine	", "United Arab Emirates	", "United Kingdom	", "United States	", "Unspecified	", "Uruguay	", "Us Msc.Pac.I	", "Uzbekistan	", "Uzbekistan	", "Vanuatu	", "Vanuatu	", "Venezuela	", "Vietnam	", "Virgin Islands (U.S.)	", "Wake Island	", "Wallis and Futura Isl.	", "Western Sahara	", "World	", "Yemen Democratic		", "Yemen, Rep.	", "Yugoslavia	", "Yugoslavia, FR (Serbia/Montene	", "Zambia	", "Zimbabwe	"];
 }
 
 
