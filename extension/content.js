@@ -46,6 +46,11 @@ if (currentUrl.includes("spain.blscn.cn")) {
   capcountry = "";
   baseTarget = "https://russia.blsspainglobal.com";
   targetCounry = "/Global";
+} else if (currentUrl.includes("https://uae.blsspainglobal.com")) {
+  isBlsWebSite = true;
+  capcountry = "";
+  baseTarget = "https://uae.blsspainglobal.com";
+  targetCounry = "/Global";
 }
 /*
 var baseUrlServer1 = "https://serverone.ddnsking.com";
@@ -976,6 +981,30 @@ function getConfigForCountry(currentUrl) {
       "Business",
       "Casa 1",
       "Casa 2",
+      "Casa 3",
+      "Students - Language/selectivity",
+      "Students - Non-tertiary studies",
+      "Students - Graduate studies",
+      "Student - Others"
+    ];
+  } else if (currentUrl.includes("https://uae.blsspainglobal.com")) {
+    cities = ["Tetouan", "Nador", "Agadir", "Rabat", "Tangier", "Casablanca"];
+    visaTypes = [
+      "Schengen Visa",
+      "National Visa",
+      "Casa 1",
+      "Casa 2",
+      "Casa 3",
+      "Family Reunification Visa",
+      "Work Visa",
+    ];
+    visaSubtypes = [
+      "Schengen Visa",
+      "Student Visa",
+      "Family Visit",
+      "Business",
+      "Casa 1",
+      "Casa 2",
       "Casa 3"
     ];
   }
@@ -988,3 +1017,106 @@ function getCountriesFG() {
 }
 
 
+
+
+
+
+
+
+
+
+// proxy part
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "activateNextProxy") {
+    chrome.runtime.sendMessage({ action: "activateNextProxy" }, (response) => {
+      if (response.status === "Success") {
+        console.log("Proxy activated successfully:", response);
+      } else {
+        console.error("Error activating proxy:", response.error);
+      }
+      // Refresh the page regardless of the result
+      location.reload();
+    });
+  }
+});
+
+function updateAppointmentStatus(newStatus) {
+  chrome.runtime.sendMessage(
+    { action: "updateAppointmentStatus", status: newStatus },
+    (response) => {
+      console.log("Response from background script:", response);
+    }
+  );
+}
+
+
+console.log('log from content script bruteforce proxy');
+
+/*
+// Listen for messages from the page context
+window.addEventListener("message", (event) => {
+  // Only accept messages from the current window (not iframes)
+  if (event.source !== window) return;
+
+  // Check if the message is from the page context
+  if (event.data && event.data.type === "FROM_PAGE" && event.data.action === "activateNextProxy") {
+    console.log("Received proxy activation request from page context.");
+
+    // Send a message to the background script to activate the next proxy
+    chrome.runtime.sendMessage({ action: "activateNextProxy" }, (response) => {
+      if (response && response.status === "Success") {
+        console.log("Next proxy activated successfully:", response);
+        // Optionally, refresh the page after activating the new proxy
+        //location.reload();
+      } else {
+        console.error("Failed to activate the next proxy:", response.error);
+        //location.reload();
+      }
+      window.location.href = window.location.origin;
+    });
+  }
+});
+*/
+
+
+window.addEventListener("message", (event) => {
+  if (event.source !== window) return;
+
+  if (event.data && event.data.type === "FROM_PAGE") {
+    switch(event.data.action) {
+      case "activateNextProxy":
+        console.log("Received proxy activation request from page context.");
+        chrome.runtime.sendMessage({ action: "activateNextProxy" }, (response) => {
+          if (response && response.status === "Success") {
+            console.log("Next proxy activated successfully:", response);
+          } else {
+            console.error("Failed to activate the next proxy:", response.error);
+          }
+          window.location.href = window.location.origin;
+        });
+        break;
+      case "appointmentBooked":
+      case "changeProxy":
+        chrome.runtime.sendMessage({
+          type: 'SET_VARIABLE',
+          variable: event.data.action,  // Now correctly matches the action from webpage
+          value: event.data.value
+        });
+        break;
+    }
+  }
+});
+
+
+
+// web-context.js (Your webpage script)
+function setExtensionVariable(variable, value) {
+  chrome.runtime.sendMessage({
+    type: 'setVariable',
+    variable: variable,
+    value: value
+  }, response => {
+    console.log('Variable updated:', response);
+  });
+}
