@@ -31,6 +31,7 @@ baseUrlServer = "https://devserver.ddnsking.com";
 var currentUrl = window.location.href;
 if (currentUrl.includes("Appointment/ApplicantSelection")) {
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
+  setAppointmentBooked(true);
 
 }
 
@@ -42,10 +43,11 @@ if (
   window.location.reload();
 }
 
-let changeProxyWhenTooManyRequest = JSON.parse(localStorage.getItem('changeProxyWhenTooManyRequest')) || true;
+let changeProxyWhenTooManyRequest = JSON.parse(localStorage.getItem('changeProxyWhenTooManyRequest')) ?? true;
 
 // Store the updated value back in localStorage
 localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(changeProxyWhenTooManyRequest));
+setAppointmentBooked(!changeProxyWhenTooManyRequest);
 
 console.log(changeProxyWhenTooManyRequest);
 
@@ -94,6 +96,11 @@ if (currentUrl.includes("spain.blscn.cn")) {
   isBlsWebSite = true;
   capcountry = "";
   baseTarget = "https://russia.blsspainglobal.com";
+  targetCounry = "/Global";
+} else if (currentUrl.includes("https://uae.blsspainglobal.com")) {
+  isBlsWebSite = true;
+  capcountry = "";
+  baseTarget = "https://uae.blsspainglobal.com";
   targetCounry = "/Global";
 }
 
@@ -401,6 +408,12 @@ let menuElement;
   
     // Add elements to groups
     const initialStatus = localStorage.getItem('changeproxyactivated') === 'true';
+    if (initialStatus) {
+      setChangeProxy(true);
+   } else {
+      setChangeProxy(false);
+   }
+    
     const initialText = initialStatus ? 'Change Proxy is ON' : 'Change Proxy is OFF';
     addButtonToMenu(initialText, () => toggleProxyStatus('proxy-toggle'), 'proxy-toggle', 'proxy-controls');
     addInputToMenu('Proxy Delay', 'Enter delay in ms', updateProxyDelay, 'proxy-delay-input', 'proxy-controls');
@@ -790,7 +803,7 @@ if (isBlsWebSite) {
 // Check if the page title contains "404", "504", or "502"
 if (
   pageTitle.includes("404") ||
-  pageTitle.includes("403") ||
+  //pageTitle.includes("403") ||
   pageTitle.includes("504") ||
   pageTitle.includes("500") ||
   pageTitle.includes("502") ||
@@ -1745,6 +1758,7 @@ async function selectCategories() {
   addAliseIfnotAdded();
   let profileData = JSON.parse(localStorage.getItem('profileData'));
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
+  setAppointmentBooked(false);
 
   await randomDelay();
   if (parseInt(profileData.app_numberOfFamilyMembers, 10)+1 > 1) {
@@ -1839,69 +1853,17 @@ function checkVisaSlotSelectionElement() {
 }
 
 const visaSlotSelectionElement = checkVisaSlotSelectionElement();
-/*
-let getSlotsBydateAction = 'GetAvailableSlotsByDate?data';
-async function logResponseVtv() {
-  // Check if the request is completed
-  if (this.readyState === 4) {
-    console.log("API call intercepted hhhhhhhhhhhhhhhhhhhhh:", {
-      // method: this._method, // Access the method using _method property
-      //url: this.responseURL, // Access the URL using responseURL property
-      //status: this.status,
-      //responseText: this.responseText,
-    });
-    try {
-      console.log(this.status);
-      // Check if the URL includes "BlsAppointment/VisaAppointmentForm?appointmentId=" and the status is not success
-      if (this.responseURL.includes(getSlotsBydateAction) && this.status !== 200) {
-        console.log("HTML Error:", this.status);
-        let timeOut = 5000;
-        if (this.status === 429) {
-          timeOut = 100000;
-        }
-        setTimeout(() => {
-          //document.getElementById("btnSubmit").click();
-        }, timeOut);
-      }
-      if (this.status === 200 && (this.responseURL.includes(getSlotsBydateAction))) {
-        console.log('now going to select the time Slot');
-        selectTheTime();
-      } else if (this.responseURL.includes(getSlotsBydateAction) && (this.status === 504 || this.status === 502 || this.status === 503)) {
-        console.log('now going to reselect the date Slot');
-        selectTheDate();
-      } else if (this.status === 429 && (this.responseURL.includes(getSlotsBydateAction))) {
-        console.log('now going to select the date Slot');
-        await delay(120*1000);
-        selectTheDate();
-      } else if (this.status === 429 && (this.responseURL.includes(getSlotsBydateAction))) {
-        console.log('now going to select the date Slot');
-        await delay(60*1000);
-        selectTheDate();
-      }
-    } catch {
-      console.log("error");
-    }
-  }
-}
 
-// Intercept XMLHttpRequest
-var originalXHROpen = window.XMLHttpRequest.prototype.open;
-window.XMLHttpRequest.prototype.open = function (method, url) {
-  // Store method as a property for later access
-  this._url = url;
-  this._method = method;
-  this.addEventListener("load", logResponseVtv);
-  originalXHROpen.apply(this, arguments);
-};
-*/
 var datesArray;
 var timeArray;
 var dateTimeSelectedOne = false;
 
 async function selectTheDate() {
 
-  let dateSlotID = await getLabelFor("Appointment Date*");
-  if (dateTimeSelectedOne) {
+  try {
+
+    let dateSlotID = await getLabelFor("Appointment Date*");
+  if (!dateTimeSelectedOne) {
 
     createrefreshDateButton();
     selectDate(dateSlotID);
@@ -1909,10 +1871,15 @@ async function selectTheDate() {
     window[`${dateSlotID}_ondatechange`]();
 
   } else {
-    delay(60 * 1000);
+    await delay(30 * 1000);
     selectDate(dateSlotID);
 
     window[`${dateSlotID}_ondatechange`]();
+  }
+    
+  } catch (error) {
+    await delay(500);
+    await selectTheDate();
   }
 
 
@@ -2036,6 +2003,7 @@ if (visaTypeSelectionElement) {
 }
 if (currentUrl.includes("Appointment/ApplicantSelection")) {
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(false));
+  setAppointmentBooked(true);
 
   playEpicAirRaidSiren();
 
@@ -2247,7 +2215,7 @@ if (document.querySelector('#div-main > div.col-12.alert.alert-warning')?.textCo
   }, localStorage.getItem('callSpeed') * 1000);//}, settings.refreshCooldown*1000);
 
 }
-if (currentUrl.includes("changepassword?alert=True")) {
+if (currentUrl.includes("changepassword") || currentUrl.includes("ChangePassword")) {
   handlePasswordChange();
 
 }
@@ -2280,6 +2248,7 @@ async function handlePasswordChange() {
 // Check if 'home/index' exists in the pathname
 if (currentUrl.toLowerCase().includes("home/index") && isBlsWebSite) {
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
+  setAppointmentBooked(false);
 
   console.log("The page contains 'home/index'");
   //document.querySelector('#div-main > div:nth-child(2) > a').click();
@@ -2705,6 +2674,7 @@ if (
   || currentUrl.includes('appointment/appointmentcaptcha')
 ) {
   localStorage.setItem('changeProxyWhenTooManyRequest', JSON.stringify(true));
+  setAppointmentBooked(false);
 
 
   setTimeout(() => {
@@ -3706,6 +3676,11 @@ function toggleProxyStatus(btnId) {
   let changeproxyActivated = localStorage.getItem('changeproxyactivated') === 'true';
   // Toggle the status
   changeproxyActivated = !changeproxyActivated;
+  if(changeproxyActivated===true){
+    setChangeProxy(true);
+  }else if(changeproxyActivated===false){
+    setChangeProxy(false);
+  }
   // Update localStorage with the new state
   localStorage.setItem('changeproxyactivated', changeproxyActivated.toString());
   // Update button text based on the new state
@@ -4146,7 +4121,16 @@ async function fillNewUserDataFromLocalStorage() {
     console.log("Date of birth not found in profileData");
   }
 
-  document.getElementById('ppNo').value = profileData.app_passportNumber;
+  const ppNoElement = document.getElementById('ppNo');
+  if (ppNoElement) {
+      ppNoElement.value = profileData.app_passportNumber;
+  }
+  
+  const passportNumberElement = document.getElementById('PassportNumber');
+  if (passportNumberElement) {
+      passportNumberElement.value = profileData.app_passportNumber;
+  }
+  
 
   let passportIssuedCountryHolder = await clickListHolder('Passport Issue Country*');
   await selectListFromHolder(passportIssuedCountryHolder, profileData.app_passportIssueCountry);
@@ -4157,8 +4141,14 @@ async function fillNewUserDataFromLocalStorage() {
 
   document.getElementById('IssuePlace').value = profileData.app_passportIssuePlace;
 
-  let countryOfResidenceHolder = await clickListHolder('Country Of Residence*');
+  try {
+    let countryOfResidenceHolder = await clickListHolder('Country Of Residence*');
   await selectListFromHolder(countryOfResidenceHolder, profileData.app_countryOfResidence);
+  } catch (error) {
+    console.log(error);
+  }
+
+  
 
   document.getElementById('Mobile').value = profileData.app_phoneNumber;
   document.getElementById('Email').value = profileData.app_email;
@@ -4662,7 +4652,7 @@ function playEpicAirRaidSiren() {
 
 
 function sendProxyChangeRequest() {
-  if (localStorage.getItem('changeproxyactivated') === 'true') {
+  if (localStorage.getItem('changeproxyactivated') === 'true' && JSON.parse(localStorage.getItem('changeProxyWhenTooManyRequest')) === true) {
     let delayInSeconds = localStorage.getItem('proxydelay') || 3;
     let delay = 1000 * delayInSeconds;
 
@@ -4673,6 +4663,7 @@ function sendProxyChangeRequest() {
     // Send a message to the content script to activate the next proxy
     setTimeout(() => {
       window.postMessage({ type: "FROM_PAGE", action: "activateNextProxy" }, "*");
+      console.log("proxy changed!!!");
       window.location.href = baseTarget;
     }, delay);
   }
@@ -4682,5 +4673,27 @@ function sendProxyChangeRequest() {
   // Check for error codes in the title
 
 }
+
+function setAppointmentBooked(value) {
+  window.postMessage({
+      type: 'FROM_PAGE',
+      action: 'appointmentBooked',
+      value: !!value
+  }, '*');
+}
+
+function setChangeProxy(value) {
+  window.postMessage({
+      type: 'FROM_PAGE',
+      action: 'changeProxy',
+      value: !!value
+  }, '*');
+}
+
+
+//setAppointmentBooked(true);  // or false
+//setChangeProxy(true);  // or false
+
+
 
 
