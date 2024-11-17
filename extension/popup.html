@@ -1,75 +1,216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style type="text/css">
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 14pt;
-      min-width: 250px;
-      overflow-x: hidden;
-      background-color: #f5f5f5;
+  <title>Proxy Switcher</title>
+  <style>
+    body { 
+      width: 350px; 
+      padding: 10px; 
+      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 10px;
     }
-
-    .button-container {
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      border-radius: 15px;
-      margin-bottom: 15px;
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
     }
-
-    .button-64 {
-      flex: 1;
-      padding: 15px;
-      background-color: #3498db; /* Blue color */
-      color: #fff;
+    button { 
+      width: 100%; 
+      padding: 8px; 
+      background-color: #4CAF50;
+      color: white;
       border: none;
-      border-radius: 15px;
+      border-radius: 4px;
       cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    button.full-width {
+      grid-column: 1 / -1;
+    }
+    #status { 
+      margin-bottom: 8px;
+      padding: 4px;
+      background-color: #fff;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    #errorInfo { 
+      margin-top: 8px;
+      color: #dc3545;
+      font-weight: bold;
+      padding: 4px;
+    }
+    textarea { 
+      width: 100%; 
+      height: 150px; 
+      margin: 10px 0;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    .info-container {
+      background-color: #f8f9fa;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      border: 1px solid #e9ecef;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-family: monospace;
+      font-size: 13px;
+      border-bottom: 1px solid #eee;
+      line-height: 1.4;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #666;
+    }
+    .info-value {
+      font-weight: bold;
+      color: #2d8a2d;
+      text-align: right;
+      word-break: break-all;
+      max-width: 200px;
+    }
+    .proxy-search {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .proxy-select {
+      width: 100%;
+      padding: 4px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+      cursor: pointer;
+      max-height: 200px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .proxy-select option {
+      padding: 8px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .proxy-select option[data-active="true"] {
+      background-color: #e6ffe6;
+      font-weight: bold;
+      border-left: 4px solid #4CAF50;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 10px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+      padding: 2px;
+      border: 1px solid #ddd;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px;
       text-align: center;
-      transition: background-color 0.3s;
-      overflow: hidden;
+      background-color: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      font-weight: bold;
+      color: #666;
+      user-select: none;
     }
-
-    .button-64:hover {
-      background-color: #2980b9; /* Darker blue color on hover */
+    .tab:hover {
+      background-color: rgba(74, 175, 80, 0.1);
     }
-
-    .icon-container {
-      margin-right: 10px;
-      font-size: 20px;
+    .tab.active {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #666;
     }
   </style>
-  <title>Extension Popup</title>
 </head>
 <body>
-  <div class="button-container">
-    <span class="icon-container">⚙️</span>
-    <button class="button-64" id="button1">Extension Setting</button>
+  <div class="tabs">
+    <div class="tab active" data-tab="control">Control</div>
+    <div class="tab" data-tab="manage">Manage List</div>
   </div>
-  <div class="button-container">
-    <span class="icon-container">👥</span>
-    <button class="button-64" id="button2">Manage Client</button>
+
+  <div id="control-tab" class="tab-content active">
+    <div class="button-group">
+      <button id="activateNextProxy">Next Proxy</button>
+      <button id="deactivateProxy">Deactivate</button>
+    </div>
+    
+    <input type="text" 
+           id="proxySearch" 
+           class="proxy-search" 
+           placeholder="🔍 Search proxies..."
+           autocomplete="off"
+           spellcheck="false">
+    
+    <select id="proxySelect" 
+            class="proxy-select" 
+            size="8"
+            aria-label="Proxy list">
+    </select>
+    
+    <button id="activateSelectedProxy" class="full-width">
+      Activate Selected Proxy
+    </button>
+
+    <div class="info-container">
+      <div id="status">Status: Unknown</div>
+      <div id="proxyInfo"></div>
+      <div id="errorInfo"></div>
+    </div>
   </div>
-  <div class="button-container">
-    <span class="icon-container">💳</span>
-    <button class="button-64" id="button3">Manage Payment</button>
-  </div>
-  <div class="button-container">
-    <span class="icon-container">📸</span>
-    <button class="button-64" id="button4">Copy Selfie</button>
-  </div>
-  <div class="button-container">
-    <span class="icon-container">📸</span>
-    <button class="button-64" id="button5">Paste Selfie</button>
-  </div>
-  <div class="button-container">
-    <textarea id="headerValue" rows="4" cols="50"></textarea>
-    <button class="button-64" id="saveButton">Save</button>
+
+  <div id="manage-tab" class="tab-content">
+    <textarea id="proxyList" 
+              placeholder="Enter proxy list (one per line)&#10;Format: host:port:username:password&#10;Example: 11.22.33.44:8080:user:pass"
+              spellcheck="false"></textarea>
+    <button id="updateProxyList">Update Proxy List</button>
   </div>
 
   <script src="popup.js"></script>
