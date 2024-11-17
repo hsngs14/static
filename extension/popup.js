@@ -1,38 +1,160 @@
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('button1').addEventListener('click', function() {
-    openLink('https://algeria.blsspainglobal.com/css/site.css?config');
+// popup.js
+document.addEventListener('DOMContentLoaded', () => {
+  // UI Elements
+  const activateNextButton = document.getElementById('activateNextProxy');
+  const activateSelectedButton = document.getElementById('activateSelectedProxy');
+  const deactivateButton = document.getElementById('deactivateProxy');
+  const statusElement = document.getElementById('status');
+  const proxyInfoElement = document.getElementById('proxyInfo');
+  const errorInfoElement = document.getElementById('errorInfo');
+  const proxyListTextarea = document.getElementById('proxyList');
+  const updateProxyListButton = document.getElementById('updateProxyList');
+  const proxySelect = document.getElementById('proxySelect');
+  const proxySearch = document.getElementById('proxySearch');
+  const tabs = document.querySelectorAll('.tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  // Tab handling
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+      });
+      tab.classList.add('active');
+      document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+    });
   });
 
-  document.getElementById('button2').addEventListener('click', function() {
-    openLink('https://algeria.blsspainglobal.com/css/site.css?ManageApplicant');
-  });
+  let currentProxyList = [];
 
-  document.getElementById('button3').addEventListener('click', function() {
-    openLink('https://cib.satim.dz');
-  });
+  function formatProxyForDisplay(proxyString) {
+    const [host, port, username] = proxyString.split(':');
+    return `${username}@${host}:${port}`;
+  }
 
-  document.getElementById('button4').addEventListener('click', function() {
-    openLink('https://playground.bioid.com/LivenessDetection');
-  });
+  function updateUI(response) {
+    console.log("Updating UI with response:", response);
+    statusElement.textContent = `Status: ${response.status}`;
+    
+    if (response.ip) {
+      proxyInfoElement.textContent = `Current IP: ${response.ip}`;
+    } else {
+      proxyInfoElement.textContent = 'Current IP: Fetching...';
+    }
 
-  document.getElementById('button5').addEventListener('click', function() {
-    openLink('https://algeria.blsspainglobal.com/DZA/blsappointment/livenessdetection?appointmentId=d65b0ad0-3a6c-44c1-9efc-50bc82e680b0&applicantPhotoId=fcb3672e-63da-40dc-9356-681eb8342bdc');
-  });
+    if (response.credentials) {
+      proxyInfoElement.textContent += `\nProxy User: ${response.credentials.username}`;
+    }
 
-  function openLink(url) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      chrome.tabs.create({ url: url });
+    if (response.status === "Error") {
+      errorInfoElement.textContent = `Error: ${response.error}`;
+    } else {
+      errorInfoElement.textContent = "";
+    }
+
+    // Update button states
+    activateSelectedButton.disabled = proxySelect.selectedIndex === -1;
+  }
+
+  function updateProxySelect(searchTerm = '') {
+    proxySelect.innerHTML = '';
+    const filteredProxies = currentProxyList.filter(proxy => 
+      formatProxyForDisplay(proxy).toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    filteredProxies.forEach((proxy, index) => {
+      const option = document.createElement('option');
+      option.value = proxy;
+      option.textContent = formatProxyForDisplay(proxy);
+      option.title = proxy; // Show full proxy string on hover
+      proxySelect.appendChild(option);
+    });
+
+    activateSelectedButton.disabled = proxySelect.selectedIndex === -1;
+  }
+
+  function loadProxyList() {
+    chrome.storage.sync.get(['proxyList'], (result) => {
+      if (result.proxyList) {
+        currentProxyList = result.proxyList;
+        proxyListTextarea.value = result.proxyList.join('\n');
+        updateProxySelect();
+      }
     });
   }
-});
 
-document.addEventListener('DOMContentLoaded', function() {
-  var saveButton = document.getElementById('saveButton');
-  saveButton.addEventListener('click', function() {
-    var headerValue = document.getElementById('headerValue').value;
-    chrome.storage.local.set({ 'customHeader': headerValue }, function() {
-      console.log('Custom header set to: ' + headerValue);
+  function refreshStatus() {
+    chrome.runtime.sendMessage({action: "getProxyStatus"}, updateUI);
+  }
+
+  // Event Listeners
+  proxySearch.addEventListener('input', (e) => {
+    updateProxySelect(e.target.value);
+  });
+
+  proxySelect.addEventListener('change', () => {
+    activateSelectedButton.disabled = proxySelect.selectedIndex === -1;
+  });
+
+  // Next Proxy Button
+  activateNextButton.addEventListener('click', () => {
+    chrome.runtime.sendMessage({action: "activateNextProxy"}, updateUI);
+  });
+
+  // Selected Proxy Button
+  activateSelectedButton.addEventListener('click', () => {
+    const selectedProxy = proxySelect.value;
+    if (selectedProxy) {
+      chrome.runtime.sendMessage({
+        action: "activateSpecificProxy",
+        proxy: selectedProxy
+      }, updateUI);
+    }
+  });
+
+  deactivateButton.addEventListener('click', () => {
+    chrome.runtime.sendMessage({action: "deactivateProxy"}, updateUI);
+  });
+
+  updateProxyListButton.addEventListener('click', () => {
+    const proxyListText = proxyListTextarea.value;
+    const proxyList = proxyListText
+      .split(/[\r\n]+/)
+      .map(line => line.trim())
+      .filter(line => line !== "");
+
+    if (proxyList.length === 0) {
+      alert("Please enter at least one proxy in the format host:port:username:password");
+      return;
+    }
+
+    const invalidProxies = proxyList.filter(proxy => {
+      const parts = proxy.split(':');
+      return parts.length !== 4 || isNaN(parseInt(parts[1]));
+    });
+
+    if (invalidProxies.length > 0) {
+      alert(`Found ${invalidProxies.length} invalid proxy entries. Please check the format: host:port:username:password`);
+      return;
+    }
+
+    chrome.runtime.sendMessage({
+      action: "updateProxyList", 
+      proxyList: proxyList
+    }, (response) => {
+      if (response.status === "Success") {
+        alert(response.message || "Proxy list updated successfully");
+        currentProxyList = proxyList;
+        updateProxySelect();
+      } else {
+        alert(`Error updating proxy list: ${response.error}`);
+      }
     });
   });
-});
 
+  // Initial load
+  loadProxyList();
+  refreshStatus();
+  setInterval(refreshStatus, 5000);
+});
